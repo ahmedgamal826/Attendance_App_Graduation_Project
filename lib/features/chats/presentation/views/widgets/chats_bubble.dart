@@ -32,10 +32,10 @@ class ChatsBubble extends StatelessWidget {
                     : Colors.grey[500], // الرسائل من الطرف التاني: رمادي فاتح
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Text(
+              child: SelectableText(
                 message['text'],
                 style: const TextStyle(
-                  color: Colors.white, // لون النص أبيض
+                  color: Colors.white,
                   fontSize: 16,
                 ),
               ),

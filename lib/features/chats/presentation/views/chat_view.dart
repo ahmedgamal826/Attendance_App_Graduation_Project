@@ -15,6 +15,8 @@ class ChatView extends StatefulWidget {
 
 class _ChatViewState extends State<ChatView> {
   final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
   final List<Map<String, dynamic>> _messages = [
     {"text": "Hey, how are you?", "isMe": true, "time": "3:00 PM"},
     {"text": "Good, how about you?", "isMe": false, "time": "3:01 PM"},
@@ -47,6 +49,17 @@ class _ChatViewState extends State<ChatView> {
         'time': DateTime.now().toString().substring(11, 16),
       });
       _messageController.clear();
+    });
+
+    // 👇 التمرير لآخر رسالة بعد إرسالها
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0.0, // لأنك عامل reverse: true
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
     });
   }
 
@@ -101,6 +114,7 @@ class _ChatViewState extends State<ChatView> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               reverse: true, // الرسائل تبدأ من الأسفل
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
               itemCount: _messages.length,

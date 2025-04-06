@@ -3,13 +3,19 @@ import 'package:flutter/material.dart';
 
 class SearchChatsTextField extends StatelessWidget {
   final String hintText;
+  final ValueChanged<String>? onChanged;
 
-  const SearchChatsTextField({super.key, required this.hintText});
+  const SearchChatsTextField({
+    super.key,
+    required this.hintText,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       cursorColor: AppColors.primaryColor,
+      onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(

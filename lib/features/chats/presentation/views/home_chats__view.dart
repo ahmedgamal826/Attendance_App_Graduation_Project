@@ -49,11 +49,14 @@ class HomeChatsView extends StatelessWidget {
             }
             return Column(
               children: [
-                const Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
                   child: SearchChatsTextField(
                     hintText: 'Search or start a new chat',
+                    onChanged: (query) {
+                      viewModel.filterChats(query);
+                    },
                   ),
                 ),
                 Expanded(
