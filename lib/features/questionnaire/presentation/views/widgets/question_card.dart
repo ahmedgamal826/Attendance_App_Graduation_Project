@@ -1,21 +1,164 @@
+// // import 'package:attendance_app/core/utils/app_colors.dart';
+// // import 'package:flutter/material.dart';
+
+// // class QuestionCard extends StatelessWidget {
+// //   final int index;
+// //   final bool isSelected;
+// //   final VoidCallback onTap;
+// //   final VoidCallback onDelete;
+
+// //   const QuestionCard({
+// //     required this.index,
+// //     required this.isSelected,
+// //     required this.onTap,
+// //     required this.onDelete,
+// //   });
+
+// //   @override
+// //   Widget build(BuildContext context) {
+// //     return Padding(
+// //       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+// //       child: Stack(
+// //         children: [
+// //           GestureDetector(
+// //             onTap: onTap,
+// //             child: Card(
+// //               elevation: 5,
+// //               color: isSelected ? AppColors.primaryColor : Colors.white,
+// //               shape: RoundedRectangleBorder(
+// //                   borderRadius: BorderRadius.circular(10)),
+// //               child: Container(
+// //                 width: 100,
+// //                 alignment: Alignment.center,
+// //                 child: Text(
+// //                   'Question ${index + 1}',
+// //                   style: TextStyle(
+// //                     fontSize: 16,
+// //                     color: isSelected ? Colors.white : Colors.black,
+// //                     fontWeight: FontWeight.bold,
+// //                   ),
+// //                 ),
+// //               ),
+// //             ),
+// //           ),
+// //           Positioned(
+// //             top: 0,
+// //             right: 0,
+// //             child: GestureDetector(
+// //               onTap: onDelete,
+// //               child: Container(
+// //                 padding: const EdgeInsets.all(4),
+// //                 decoration: const BoxDecoration(
+// //                     color: Colors.red, shape: BoxShape.circle),
+// //                 child: const Icon(Icons.close, color: Colors.white, size: 12),
+// //               ),
+// //             ),
+// //           ),
+// //         ],
+// //       ),
+// //     );
+// //   }
+// // }
+
+// import 'package:attendance_app/core/utils/app_colors.dart';
+// import 'package:flutter/material.dart';
+
+// class QuestionCard extends StatelessWidget {
+//   final int index;
+//   final bool isSelected;
+//   final VoidCallback onTap;
+//   final VoidCallback onDelete;
+//   final String role; // إضافة معامل جديد للدور
+
+//   const QuestionCard({
+//     required this.index,
+//     required this.isSelected,
+//     required this.onTap,
+//     required this.onDelete,
+//     required this.role, // إضافة المعامل للمعلمات المطلوبة
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+//       child: Stack(
+//         children: [
+//           GestureDetector(
+//             onTap: onTap,
+//             child: Card(
+//               elevation: 5,
+//               color: isSelected ? AppColors.primaryColor : Colors.white,
+//               shape: RoundedRectangleBorder(
+//                   borderRadius: BorderRadius.circular(10)),
+//               child: Container(
+//                 width: 100,
+//                 alignment: Alignment.center,
+//                 child: Text(
+//                   'Question ${index + 1}',
+//                   style: TextStyle(
+//                     fontSize: 16,
+//                     color: isSelected ? Colors.white : Colors.black,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//           // عرض أيقونة الحذف فقط إذا كان الدور هو 'Admin'
+//           if (role == 'Admin')
+//             Positioned(
+//               top: 0,
+//               right: 0,
+//               child: GestureDetector(
+//                 onTap: onDelete,
+//                 child: Container(
+//                   padding: const EdgeInsets.all(4),
+//                   decoration: const BoxDecoration(
+//                       color: Colors.red, shape: BoxShape.circle),
+//                   child: const Icon(Icons.close, color: Colors.white, size: 12),
+//                 ),
+//               ),
+//             ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class QuestionCard extends StatelessWidget {
   final int index;
   final bool isSelected;
+  final bool isAnswered; // إضافة خاصية لتتبع حالة الإجابة
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final String role;
 
   const QuestionCard({
     required this.index,
     required this.isSelected,
+    this.isAnswered = false, // افتراضيًا غير مجاب
     required this.onTap,
     required this.onDelete,
+    required this.role,
   });
 
   @override
   Widget build(BuildContext context) {
+    // تحديد لون الكارت بناءً على حالته
+    Color cardColor;
+    if (isSelected) {
+      cardColor = AppColors.primaryColor;
+    } else if (isAnswered) {
+      cardColor =
+          Colors.green.shade100; // خلفية خضراء فاتحة للأسئلة المجاب عليها
+    } else {
+      cardColor = Colors.white;
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Stack(
@@ -24,7 +167,7 @@ class QuestionCard extends StatelessWidget {
             onTap: onTap,
             child: Card(
               elevation: 5,
-              color: isSelected ? AppColors.primaryColor : Colors.white,
+              color: cardColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
               child: Container(
@@ -41,19 +184,33 @@ class QuestionCard extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: GestureDetector(
-              onTap: onDelete,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                    color: Colors.red, shape: BoxShape.circle),
-                child: const Icon(Icons.close, color: Colors.white, size: 12),
+          // عرض أيقونة الحذف فقط إذا كان الدور هو 'Admin'
+          if (role == 'Admin')
+            Positioned(
+              top: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: onDelete,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                      color: Colors.red, shape: BoxShape.circle),
+                  child: const Icon(Icons.close, color: Colors.white, size: 12),
+                ),
               ),
             ),
-          ),
+          // إضافة علامة صح صغيرة للأسئلة المجاب عليها
+          if (isAnswered && !isSelected)
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                    color: Colors.green, shape: BoxShape.circle),
+                child: const Icon(Icons.check, color: Colors.white, size: 10),
+              ),
+            ),
         ],
       ),
     );

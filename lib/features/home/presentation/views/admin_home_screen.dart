@@ -209,6 +209,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "fab_admin_home_screen",
         onPressed: () {
           Navigator.push(
             context,

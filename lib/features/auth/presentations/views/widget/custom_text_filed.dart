@@ -29,6 +29,7 @@ class _CustomTextFiledState extends State<CustomTextFiled> {
       child: Align(
         alignment: Alignment.center,
         child: TextFormField(
+          cursorColor: Colors.white,
           controller: widget.controller,
           validator: (value) {
             if (value!.isEmpty) {

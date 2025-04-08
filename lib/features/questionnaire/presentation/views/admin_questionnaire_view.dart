@@ -158,6 +158,7 @@ class AdminQuestionnaireView extends StatelessWidget {
                                 itemBuilder: (context, index) {
                                   print('Building card for question $index');
                                   return QuestionCard(
+                                    role: 'Admin',
                                     index: index,
                                     isSelected:
                                         viewModel.currentQuestionIndex == index,
@@ -193,6 +194,7 @@ class AdminQuestionnaireView extends StatelessWidget {
                   bottom: 100,
                   right: 16,
                   child: FloatingActionButton(
+                    heroTag: "admin_questionnaire_screen",
                     onPressed: () {
                       print('FAB pressed');
                       _showQuestionTypeDialog(context, viewModel);

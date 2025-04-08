@@ -87,6 +87,7 @@ class HomeChatsView extends StatelessWidget {
           },
         ),
         floatingActionButton: FloatingActionButton(
+          heroTag: "_home_chats_screen",
           onPressed: () {
             Navigator.push(
               context,

@@ -125,6 +125,7 @@ class HomeQuestionnairesView extends StatelessWidget {
                     ),
                   ),
             floatingActionButton: FloatingActionButton(
+              heroTag: "admin_home_questionnaire_screen",
               onPressed: () async {
                 final newQuestions = await Navigator.push(
                   context,
