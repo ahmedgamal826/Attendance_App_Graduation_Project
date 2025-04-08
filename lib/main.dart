@@ -39,6 +39,8 @@ import 'package:attendance_app/features/auth/presentations/views/add_user_screen
 import 'package:attendance_app/features/chat_gpt/data/services/sound_services.dart';
 import 'package:attendance_app/features/chat_gpt/presentation/manager/Providers/profile_provider.dart';
 import 'package:attendance_app/features/home/presentation/manager/provider/dark_mode_provider.dart';
+import 'package:attendance_app/features/questionnaire/presentation/viewmodels/home_questionnaires_viewmodel.dart';
+import 'package:attendance_app/features/questionnaire/presentation/viewmodels/questionnaire_viewmodel.dart';
 import 'package:attendance_app/features/splash/presentation/views/splash_view.dart';
 import 'package:attendance_app/firebase_options.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
@@ -71,6 +73,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SoundService()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => DarkModeProvider()),
+        // ChangeNotifierProvider(create: (_) => QuestionnaireViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeQuestionnairesViewModel()),
       ],
       child: AttendanceApp(),
     ),

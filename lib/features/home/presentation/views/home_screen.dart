@@ -309,7 +309,7 @@ class HomeScreen extends StatelessWidget {
           .collection("users")
           .doc(user.uid)
           .get();
-      return userDoc["role"] == "admin";
+      return userDoc["role"] == "Admin";
     }
     return false;
   }
