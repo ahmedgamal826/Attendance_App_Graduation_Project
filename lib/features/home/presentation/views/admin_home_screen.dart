@@ -1,5 +1,7 @@
+import 'package:attendance_app/core/widgets/subject_screen.dart';
 import 'package:attendance_app/features/home/presentation/views/add_subject_view.dart';
 import 'package:attendance_app/features/home/presentation/views/widgets/subjects_list.dart';
+import 'package:attendance_app/features/schedule_open_camera/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/home/presentation/views/widgets/admin_drawer.dart';
@@ -53,7 +55,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: AppColors.primaryColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -104,99 +105,117 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       double fontSizeTitle = constraints.maxWidth * 0.06;
                       double fontSizeSubtitle = constraints.maxWidth * 0.04;
 
-                      return Card(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Stack(
-                            children: [
-                              // صورة الخلفية
-                              Image.asset(
-                                "assets/images/1.jpg",
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: cardHeight,
-                              ),
-
-                              Container(
-                                height: cardHeight,
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.6),
+                      return GestureDetector(
+                        onTap: () {
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const ScheduleScreen(),
+                          //   ),
+                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SubjectScreen(),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Stack(
+                              children: [
+                                // صورة الخلفية
+                                Image.asset(
+                                  "assets/images/1.jpg",
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: cardHeight,
                                 ),
-                              ),
 
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0, vertical: 12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: constraints.maxWidth * 0.75,
-                                      child: Text(
-                                        filteredSubjects[index]["title"]!,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: fontSizeTitle,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-
-                                    // السنة
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 8.0),
-                                      child: Text(
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        filteredSubjects[index]["year"]!,
-                                        style: TextStyle(
-                                          fontSize: fontSizeSubtitle,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white.withOpacity(0.9),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              Positioned(
-                                top: 8,
-                                right: 8,
-                                child: IconButton(
-                                  icon: const Icon(Icons.more_vert,
-                                      color: Colors.white),
-                                  onPressed: () {
-                                    _showBottomSheet(context);
-                                  },
-                                ),
-                              ),
-
-                              Positioned(
-                                bottom: 8,
-                                left: 12,
-                                right: 20,
-                                child: Text(
-                                  filteredSubjects[index]["date"]!,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: fontSizeSubtitle,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white.withOpacity(0.9),
+                                Container(
+                                  height: cardHeight,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.6),
                                   ),
                                 ),
-                              ),
-                            ],
+
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 12),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        width: constraints.maxWidth * 0.75,
+                                        child: Text(
+                                          filteredSubjects[index]["title"]!,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: fontSizeTitle,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+
+                                      // السنة
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 8.0),
+                                        child: Text(
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          filteredSubjects[index]["year"]!,
+                                          style: TextStyle(
+                                            fontSize: fontSizeSubtitle,
+                                            fontWeight: FontWeight.w500,
+                                            color:
+                                                Colors.white.withOpacity(0.9),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.more_vert,
+                                        color: Colors.white),
+                                    onPressed: () {
+                                      _showBottomSheet(context);
+                                    },
+                                  ),
+                                ),
+
+                                Positioned(
+                                  bottom: 8,
+                                  left: 12,
+                                  right: 20,
+                                  child: Text(
+                                    filteredSubjects[index]["date"]!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: fontSizeSubtitle,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white.withOpacity(0.9),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );

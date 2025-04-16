@@ -34,19 +34,23 @@
 
 import 'package:attendance_app/app_home.dart';
 import 'package:attendance_app/core/provider/chat_provider.dart';
+import 'package:attendance_app/core/utils/app_colors.dart';
+import 'package:attendance_app/features/attendance/cubits/cubit_admin/lecture_cubit.dart';
 import 'package:attendance_app/features/auth/presentations/views/login_screen.dart';
 import 'package:attendance_app/features/auth/presentations/views/add_user_screen.dart';
 import 'package:attendance_app/features/chat_gpt/data/services/sound_services.dart';
 import 'package:attendance_app/features/chat_gpt/presentation/manager/Providers/profile_provider.dart';
+import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
+import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
 import 'package:attendance_app/features/home/presentation/manager/provider/dark_mode_provider.dart';
 import 'package:attendance_app/features/questionnaire/presentation/viewmodels/home_questionnaires_viewmodel.dart';
-import 'package:attendance_app/features/questionnaire/presentation/viewmodels/questionnaire_viewmodel.dart';
 import 'package:attendance_app/features/splash/presentation/views/splash_view.dart';
 import 'package:attendance_app/firebase_options.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -69,12 +73,16 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        // Providers
         ChangeNotifierProvider(create: (context) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => SoundService()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => DarkModeProvider()),
         // ChangeNotifierProvider(create: (_) => QuestionnaireViewModel()),
         ChangeNotifierProvider(create: (_) => HomeQuestionnairesViewModel()),
+        ChangeNotifierProvider(create: (_) => ChatViewModel(ChatRepository())),
+        // Cubits
+        BlocProvider(create: (_) => LectureCubit()),
       ],
       child: AttendanceApp(),
     ),
@@ -103,6 +111,24 @@ class AttendanceApp extends StatelessWidget {
 
             // 'adminOrStudent': (context) => const AdminOrStudent(),
           },
+          // theme: ThemeData(
+          //   textSelectionTheme: const TextSelectionThemeData(
+          //     selectionHandleColor: AppColors
+          //         .primaryColor, // change hand cursor color in text field
+          //   ),
+          // ),
+
+          theme: ThemeData(
+            primaryColor: AppColors.primaryColor,
+            appBarTheme: const AppBarTheme(
+              backgroundColor: AppColors.primaryColor,
+              foregroundColor: Colors.white,
+              elevation: 4,
+            ),
+            textSelectionTheme: const TextSelectionThemeData(
+              selectionHandleColor: AppColors.primaryColor,
+            ),
+          ),
         );
       },
     );

@@ -11,4 +11,5 @@ class AppColors {
   static const Color textPrimary = Colors.black;
   static const Color textSecondary = Colors.grey;
   static const Color unreadBadge = Colors.green;
+  static const Color backgroundScreenColor = Color(0xFFE3F2FD);
 }
