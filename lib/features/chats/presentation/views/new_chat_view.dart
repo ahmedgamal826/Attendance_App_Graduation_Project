@@ -2129,6 +2129,75 @@ class _NewChatViewState extends State<NewChatView> {
                 },
               ),
               const SizedBox(height: 20),
+              // SizedBox(
+              //   width: double.infinity,
+              //   child: ElevatedButton(
+              //     onPressed: viewModel.isLoading
+              //         ? null
+              //         : () async {
+              //             if (_formKey.currentState!.validate()) {
+              //               final email = _emailController.text.trim();
+              //               final name = _nameController.text.trim();
+              //               try {
+              //                 final chatExists =
+              //                     await viewModel.checkIfChatExists(email);
+              //                 if (chatExists) {
+              //                   ScaffoldMessenger.of(context).showSnackBar(
+              //                     const SnackBar(
+              //                         content: Text(
+              //                             'Chat with this email already exists')),
+              //                   );
+              //                   return;
+              //                 }
+
+              //                 String avatarUrl =
+              //                     await _uploadImageToStorage(_selectedImage);
+
+              //                 await viewModel.addChatWithUser(
+              //                   email,
+              //                   name,
+              //                   avatarUrl.isEmpty
+              //                       ? viewModel.avatarUrl ?? ''
+              //                       : avatarUrl,
+              //                 );
+              //                 Navigator.pop(context);
+              //                 if (viewModel.errorMessage == null) {
+              //                   ScaffoldMessenger.of(context).showSnackBar(
+              //                     const SnackBar(
+              //                         content: Text('Chat added successfully')),
+              //                   );
+              //                   Navigator.pop(context);
+              //                 } else {
+              //                   ScaffoldMessenger.of(context).showSnackBar(
+              //                     SnackBar(
+              //                         content: Text(viewModel.errorMessage!)),
+              //                   );
+              //                 }
+              //               } catch (e) {
+              //                 ScaffoldMessenger.of(context).showSnackBar(
+              //                   SnackBar(
+              //                       content: Text('Failed to add chat: $e')),
+              //                 );
+              //               }
+              //             }
+              //           },
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: AppColors.primaryColor,
+              //       padding: const EdgeInsets.symmetric(vertical: 16),
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(30),
+              //       ),
+              //     ),
+              //     child: const Text(
+              //       'Start Chat',
+              //       style: TextStyle(
+              //         color: Colors.white,
+              //         fontSize: 16,
+              //       ),
+              //     ),
+              //   ),
+              // ),
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -2166,7 +2235,7 @@ class _NewChatViewState extends State<NewChatView> {
                                   const SnackBar(
                                       content: Text('Chat added successfully')),
                                 );
-                                Navigator.pop(context);
+                                Navigator.pop(context); // استدعاء واحد فقط
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
