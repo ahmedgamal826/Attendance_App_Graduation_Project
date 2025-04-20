@@ -1,8 +1,914 @@
+// // // // // // // // // // // import 'package:attendance_app/core/utils/app_colors.dart';
+// // // // // // // // // // // import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
+// // // // // // // // // // // import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
+// // // // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/chat_view.dart';
+// // // // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/new_chat_view.dart';
+// // // // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
+// // // // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
+// // // // // // // // // // // import 'package:flutter/material.dart';
+// // // // // // // // // // // import 'package:provider/provider.dart';
+
+// // // // // // // // // // // class HomeChatsView extends StatelessWidget {
+// // // // // // // // // // //   const HomeChatsView({super.key});
+
+// // // // // // // // // // //   @override
+// // // // // // // // // // //   Widget build(BuildContext context) {
+// // // // // // // // // // //     return ChangeNotifierProvider(
+// // // // // // // // // // //       create: (context) => ChatViewModel(ChatRepository()),
+// // // // // // // // // // //       child: Scaffold(
+// // // // // // // // // // //         backgroundColor: Colors.white,
+// // // // // // // // // // //         appBar: AppBar(
+// // // // // // // // // // //           title: const Text(
+// // // // // // // // // // //             'Chats',
+// // // // // // // // // // //             style: TextStyle(
+// // // // // // // // // // //               fontSize: 25,
+// // // // // // // // // // //               fontWeight: FontWeight.bold,
+// // // // // // // // // // //               color: Colors.white,
+// // // // // // // // // // //             ),
+// // // // // // // // // // //           ),
+// // // // // // // // // // //           elevation: 0,
+// // // // // // // // // // //           actions: [
+// // // // // // // // // // //             IconButton(
+// // // // // // // // // // //               icon: const Icon(
+// // // // // // // // // // //                 Icons.menu,
+// // // // // // // // // // //                 color: Colors.white,
+// // // // // // // // // // //               ),
+// // // // // // // // // // //               onPressed: () {},
+// // // // // // // // // // //             ),
+// // // // // // // // // // //           ],
+// // // // // // // // // // //         ),
+// // // // // // // // // // //         body: Consumer<ChatViewModel>(
+// // // // // // // // // // //           builder: (context, viewModel, child) {
+// // // // // // // // // // //             if (viewModel.isLoading) {
+// // // // // // // // // // //               return const Center(
+// // // // // // // // // // //                 child: CircularProgressIndicator(
+// // // // // // // // // // //                   color: AppColors.primaryColor,
+// // // // // // // // // // //                 ),
+// // // // // // // // // // //               );
+// // // // // // // // // // //             }
+// // // // // // // // // // //             return Column(
+// // // // // // // // // // //               children: [
+// // // // // // // // // // //                 Padding(
+// // // // // // // // // // //                   padding: const EdgeInsets.symmetric(
+// // // // // // // // // // //                       horizontal: 16.0, vertical: 8.0),
+// // // // // // // // // // //                   child: SearchChatsTextField(
+// // // // // // // // // // //                     hintText: 'Search or start a new chat',
+// // // // // // // // // // //                     onChanged: (query) {
+// // // // // // // // // // //                       viewModel.filterChats(query);
+// // // // // // // // // // //                     },
+// // // // // // // // // // //                   ),
+// // // // // // // // // // //                 ),
+// // // // // // // // // // //                 Expanded(
+// // // // // // // // // // //                   child: ListView.builder(
+// // // // // // // // // // //                     itemCount: viewModel.chats.length,
+// // // // // // // // // // //                     itemBuilder: (context, index) {
+// // // // // // // // // // //                       return LongPressChatItem(
+// // // // // // // // // // //                         chat: viewModel.chats[index],
+// // // // // // // // // // //                         onTap: () {
+// // // // // // // // // // //                           Navigator.push(
+// // // // // // // // // // //                             context,
+// // // // // // // // // // //                             MaterialPageRoute(
+// // // // // // // // // // //                               builder: (context) => ChatView(
+// // // // // // // // // // //                                 chat: viewModel.chats[index],
+// // // // // // // // // // //                               ),
+// // // // // // // // // // //                             ),
+// // // // // // // // // // //                           );
+// // // // // // // // // // //                         },
+// // // // // // // // // // //                         onDelete: () {
+// // // // // // // // // // //                           viewModel.deleteChat(index); // حذف الشات
+// // // // // // // // // // //                         },
+// // // // // // // // // // //                       );
+// // // // // // // // // // //                     },
+// // // // // // // // // // //                   ),
+// // // // // // // // // // //                 ),
+// // // // // // // // // // //               ],
+// // // // // // // // // // //             );
+// // // // // // // // // // //           },
+// // // // // // // // // // //         ),
+// // // // // // // // // // //         floatingActionButton: FloatingActionButton(
+// // // // // // // // // // //           heroTag: "_home_chats_screen",
+// // // // // // // // // // //           onPressed: () {
+// // // // // // // // // // //             Navigator.push(
+// // // // // // // // // // //               context,
+// // // // // // // // // // //               MaterialPageRoute(
+// // // // // // // // // // //                 builder: (context) => const NewChatView(),
+// // // // // // // // // // //               ),
+// // // // // // // // // // //             );
+// // // // // // // // // // //           },
+// // // // // // // // // // //           backgroundColor: AppColors.primaryColor,
+// // // // // // // // // // //           child: const Icon(
+// // // // // // // // // // //             Icons.add_comment_rounded,
+// // // // // // // // // // //             color: Colors.white,
+// // // // // // // // // // //             size: 23,
+// // // // // // // // // // //           ),
+// // // // // // // // // // //         ),
+// // // // // // // // // // //       ),
+// // // // // // // // // // //     );
+// // // // // // // // // // //   }
+// // // // // // // // // // // }
+
+// // // // // // // // // // import 'package:attendance_app/core/utils/app_colors.dart';
+// // // // // // // // // // import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
+// // // // // // // // // // import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
+// // // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/chat_view.dart';
+// // // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/new_chat_view.dart';
+// // // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/user_profile_view.dart';
+// // // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
+// // // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
+// // // // // // // // // // import 'package:flutter/material.dart';
+// // // // // // // // // // import 'package:provider/provider.dart';
+
+// // // // // // // // // // class HomeChatsView extends StatelessWidget {
+// // // // // // // // // //   const HomeChatsView({super.key});
+
+// // // // // // // // // //   @override
+// // // // // // // // // //   Widget build(BuildContext context) {
+// // // // // // // // // //     return ChangeNotifierProvider(
+// // // // // // // // // //       create: (context) => ChatViewModel(ChatRepository()),
+// // // // // // // // // //       child: Scaffold(
+// // // // // // // // // //         backgroundColor: Colors.white,
+// // // // // // // // // //         appBar: AppBar(
+// // // // // // // // // //           title: const Text(
+// // // // // // // // // //             'Chats',
+// // // // // // // // // //             style: TextStyle(
+// // // // // // // // // //               fontSize: 25,
+// // // // // // // // // //               fontWeight: FontWeight.bold,
+// // // // // // // // // //               color: Colors.white,
+// // // // // // // // // //             ),
+// // // // // // // // // //           ),
+// // // // // // // // // //           elevation: 0,
+// // // // // // // // // //           actions: [
+// // // // // // // // // //             IconButton(
+// // // // // // // // // //               icon: const Icon(Icons.person, color: Colors.white),
+// // // // // // // // // //               onPressed: () {
+// // // // // // // // // //                 Navigator.push(
+// // // // // // // // // //                   context,
+// // // // // // // // // //                   MaterialPageRoute(builder: (context) => const UserProfileView()),
+// // // // // // // // // //                 );
+// // // // // // // // // //               },
+// // // // // // // // // //             ),
+// // // // // // // // // //           ],
+// // // // // // // // // //         ),
+// // // // // // // // // //         body: Consumer<ChatViewModel>(
+// // // // // // // // // //           builder: (context, viewModel, child) {
+// // // // // // // // // //             if (viewModel.isLoading) {
+// // // // // // // // // //               return const Center(
+// // // // // // // // // //                 child: CircularProgressIndicator(
+// // // // // // // // // //                   color: AppColors.primaryColor,
+// // // // // // // // // //                 ),
+// // // // // // // // // //               );
+// // // // // // // // // //             }
+// // // // // // // // // //             return Column(
+// // // // // // // // // //               children: [
+// // // // // // // // // //                 Padding(
+// // // // // // // // // //                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+// // // // // // // // // //                   child: SearchChatsTextField(
+// // // // // // // // // //                     hintText: 'Search or start a new chat',
+// // // // // // // // // //                     onChanged: (query) {
+// // // // // // // // // //                       viewModel.filterChats(query);
+// // // // // // // // // //                     },
+// // // // // // // // // //                   ),
+// // // // // // // // // //                 ),
+// // // // // // // // // //                 Expanded(
+// // // // // // // // // //                   child: ListView.builder(
+// // // // // // // // // //                     itemCount: viewModel.chats.length,
+// // // // // // // // // //                     itemBuilder: (context, index) {
+// // // // // // // // // //                       final chat = viewModel.chats[index];
+// // // // // // // // // //                       return LongPressChatItem(
+// // // // // // // // // //                         chat: chat,
+// // // // // // // // // //                         onTap: () {
+// // // // // // // // // //                           Navigator.push(
+// // // // // // // // // //                             context,
+// // // // // // // // // //                             MaterialPageRoute(
+// // // // // // // // // //                               builder: (context) => ChatView(chat: chat),
+// // // // // // // // // //                             ),
+// // // // // // // // // //                           );
+// // // // // // // // // //                         },
+// // // // // // // // // //                         onDelete: () {
+// // // // // // // // // //                           viewModel.deleteChat(chat.id);
+// // // // // // // // // //                         },
+// // // // // // // // // //                       );
+// // // // // // // // // //                     },
+// // // // // // // // // //                   ),
+// // // // // // // // // //                 ),
+// // // // // // // // // //               ],
+// // // // // // // // // //             );
+// // // // // // // // // //           },
+// // // // // // // // // //         ),
+// // // // // // // // // //         floatingActionButton: FloatingActionButton(
+// // // // // // // // // //           heroTag: "_home_chats_screen",
+// // // // // // // // // //           onPressed: () {
+// // // // // // // // // //             Navigator.push(
+// // // // // // // // // //               context,
+// // // // // // // // // //               MaterialPageRoute(
+// // // // // // // // // //                 builder: (context) => const NewChatView(),
+// // // // // // // // // //               ),
+// // // // // // // // // //             );
+// // // // // // // // // //           },
+// // // // // // // // // //           backgroundColor: AppColors.primaryColor,
+// // // // // // // // // //           child: const Icon(
+// // // // // // // // // //             Icons.add_comment_rounded,
+// // // // // // // // // //             color: Colors.white,
+// // // // // // // // // //             size: 23,
+// // // // // // // // // //           ),
+// // // // // // // // // //         ),
+// // // // // // // // // //       ),
+// // // // // // // // // //     );
+// // // // // // // // // //   }
+// // // // // // // // // // }
+
+// // // // // // // // // import 'package:attendance_app/core/utils/app_colors.dart';
+// // // // // // // // // import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
+// // // // // // // // // import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
+// // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/chat_view.dart';
+// // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/new_chat_view.dart';
+// // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/user_profile_view.dart';
+// // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
+// // // // // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
+// // // // // // // // // import 'package:flutter/material.dart';
+// // // // // // // // // import 'package:provider/provider.dart';
+
+// // // // // // // // // class HomeChatsView extends StatelessWidget {
+// // // // // // // // //   const HomeChatsView({super.key});
+
+// // // // // // // // //   @override
+// // // // // // // // //   Widget build(BuildContext context) {
+// // // // // // // // //     return ChangeNotifierProvider(
+// // // // // // // // //       create: (context) => ChatViewModel(ChatRepository()),
+// // // // // // // // //       child: Scaffold(
+// // // // // // // // //         backgroundColor: Colors.white,
+// // // // // // // // //         appBar: AppBar(
+// // // // // // // // //           title: const Text(
+// // // // // // // // //             'Chats',
+// // // // // // // // //             style: TextStyle(
+// // // // // // // // //               fontSize: 25,
+// // // // // // // // //               fontWeight: FontWeight.bold,
+// // // // // // // // //               color: Colors.white,
+// // // // // // // // //             ),
+// // // // // // // // //           ),
+// // // // // // // // //           elevation: 0,
+// // // // // // // // //           actions: [
+// // // // // // // // //             IconButton(
+// // // // // // // // //               icon: const Icon(Icons.person, color: Colors.white),
+// // // // // // // // //               onPressed: () {
+// // // // // // // // //                 Navigator.push(
+// // // // // // // // //                   context,
+// // // // // // // // //                   MaterialPageRoute(
+// // // // // // // // //                     builder: (context) => const UserProfileView(),
+// // // // // // // // //                   ),
+// // // // // // // // //                 );
+// // // // // // // // //               },
+// // // // // // // // //             ),
+// // // // // // // // //           ],
+// // // // // // // // //         ),
+// // // // // // // // //         body: Consumer<ChatViewModel>(
+// // // // // // // // //           builder: (context, viewModel, child) {
+// // // // // // // // //             if (viewModel.isLoading) {
+// // // // // // // // //               return const Center(
+// // // // // // // // //                 child: CircularProgressIndicator(
+// // // // // // // // //                   color: AppColors.primaryColor,
+// // // // // // // // //                 ),
+// // // // // // // // //               );
+// // // // // // // // //             }
+// // // // // // // // //             if (viewModel.errorMessage != null) {
+// // // // // // // // //               return Center(child: Text(viewModel.errorMessage!));
+// // // // // // // // //             }
+// // // // // // // // //             return Column(
+// // // // // // // // //               children: [
+// // // // // // // // //                 Padding(
+// // // // // // // // //                   padding: const EdgeInsets.symmetric(
+// // // // // // // // //                       horizontal: 16.0, vertical: 8.0),
+// // // // // // // // //                   child: SearchChatsTextField(
+// // // // // // // // //                     hintText: 'Search or start a new chat',
+// // // // // // // // //                     onChanged: (query) {
+// // // // // // // // //                       viewModel.filterChats(query);
+// // // // // // // // //                     },
+// // // // // // // // //                   ),
+// // // // // // // // //                 ),
+// // // // // // // // //                 Expanded(
+// // // // // // // // //                   child: ListView.builder(
+// // // // // // // // //                     itemCount: viewModel.chats.length,
+// // // // // // // // //                     itemBuilder: (context, index) {
+// // // // // // // // //                       final chat = viewModel.chats[index];
+// // // // // // // // //                       print(
+// // // // // // // // //                           'Chat displayed: ${chat.name}'); // للتأكد إن الدردشات بتظهر
+// // // // // // // // //                       return LongPressChatItem(
+// // // // // // // // //                         chat: chat,
+// // // // // // // // //                         onTap: () {
+// // // // // // // // //                           Navigator.push(
+// // // // // // // // //                             context,
+// // // // // // // // //                             MaterialPageRoute(
+// // // // // // // // //                               builder: (context) => ChatView(chat: chat),
+// // // // // // // // //                             ),
+// // // // // // // // //                           );
+// // // // // // // // //                         },
+// // // // // // // // //                         onDelete: () {
+// // // // // // // // //                           viewModel.deleteChat(chat.id);
+// // // // // // // // //                         },
+// // // // // // // // //                       );
+// // // // // // // // //                     },
+// // // // // // // // //                   ),
+// // // // // // // // //                 ),
+// // // // // // // // //               ],
+// // // // // // // // //             );
+// // // // // // // // //           },
+// // // // // // // // //         ),
+// // // // // // // // //         floatingActionButton: FloatingActionButton(
+// // // // // // // // //           heroTag: "_home_chats_screen",
+// // // // // // // // //           onPressed: () {
+// // // // // // // // //             Navigator.push(
+// // // // // // // // //               context,
+// // // // // // // // //               MaterialPageRoute(
+// // // // // // // // //                 builder: (context) => const NewChatView(),
+// // // // // // // // //               ),
+// // // // // // // // //             );
+// // // // // // // // //           },
+// // // // // // // // //           backgroundColor: AppColors.primaryColor,
+// // // // // // // // //           child: const Icon(
+// // // // // // // // //             Icons.add_comment_rounded,
+// // // // // // // // //             color: Colors.white,
+// // // // // // // // //             size: 23,
+// // // // // // // // //           ),
+// // // // // // // // //         ),
+// // // // // // // // //       ),
+// // // // // // // // //     );
+// // // // // // // // //   }
+// // // // // // // // // }
+
+// // // // // // // // import 'package:attendance_app/core/utils/app_colors.dart';
+// // // // // // // // import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
+// // // // // // // // import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
+// // // // // // // // import 'package:attendance_app/features/chats/presentation/views/chat_view.dart';
+// // // // // // // // import 'package:attendance_app/features/chats/presentation/views/new_chat_view.dart';
+// // // // // // // // import 'package:attendance_app/features/chats/presentation/views/user_profile_view.dart';
+// // // // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
+// // // // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
+// // // // // // // // import 'package:flutter/material.dart';
+// // // // // // // // import 'package:provider/provider.dart';
+
+// // // // // // // // class HomeChatsView extends StatelessWidget {
+// // // // // // // //   const HomeChatsView({super.key});
+
+// // // // // // // //   @override
+// // // // // // // //   Widget build(BuildContext context) {
+// // // // // // // //     return ChangeNotifierProvider(
+// // // // // // // //       create: (context) => ChatViewModel(ChatRepository()),
+// // // // // // // //       child: Scaffold(
+// // // // // // // //         backgroundColor: Colors.white,
+// // // // // // // //         appBar: AppBar(
+// // // // // // // //           title: const Text(
+// // // // // // // //             'Chats',
+// // // // // // // //             style: TextStyle(
+// // // // // // // //               fontSize: 25,
+// // // // // // // //               fontWeight: FontWeight.bold,
+// // // // // // // //               color: Colors.white,
+// // // // // // // //             ),
+// // // // // // // //           ),
+// // // // // // // //           elevation: 0,
+// // // // // // // //           actions: [
+// // // // // // // //             IconButton(
+// // // // // // // //               icon: const Icon(Icons.person, color: Colors.white),
+// // // // // // // //               onPressed: () {
+// // // // // // // //                 Navigator.push(
+// // // // // // // //                   context,
+// // // // // // // //                   MaterialPageRoute(
+// // // // // // // //                     builder: (context) => const UserProfileView(),
+// // // // // // // //                   ),
+// // // // // // // //                 );
+// // // // // // // //               },
+// // // // // // // //             ),
+// // // // // // // //           ],
+// // // // // // // //         ),
+// // // // // // // //         body: Consumer<ChatViewModel>(
+// // // // // // // //           builder: (context, viewModel, child) {
+// // // // // // // //             if (viewModel.isLoading) {
+// // // // // // // //               return const Center(
+// // // // // // // //                 child: CircularProgressIndicator(
+// // // // // // // //                   color: AppColors.primaryColor,
+// // // // // // // //                 ),
+// // // // // // // //               );
+// // // // // // // //             }
+// // // // // // // //             if (viewModel.errorMessage != null) {
+// // // // // // // //               return Center(child: Text(viewModel.errorMessage!));
+// // // // // // // //             }
+// // // // // // // //             return Column(
+// // // // // // // //               children: [
+// // // // // // // //                 Padding(
+// // // // // // // //                   padding: const EdgeInsets.symmetric(
+// // // // // // // //                       horizontal: 16.0, vertical: 8.0),
+// // // // // // // //                   child: SearchChatsTextField(
+// // // // // // // //                     hintText: 'Search or start a new chat',
+// // // // // // // //                     onChanged: (query) {
+// // // // // // // //                       viewModel.filterChats(query);
+// // // // // // // //                     },
+// // // // // // // //                   ),
+// // // // // // // //                 ),
+// // // // // // // //                 Expanded(
+// // // // // // // //                   child: ListView.builder(
+// // // // // // // //                     itemCount: viewModel.chats.length,
+// // // // // // // //                     itemBuilder: (context, index) {
+// // // // // // // //                       final chat = viewModel.chats[index];
+// // // // // // // //                       return LongPressChatItem(
+// // // // // // // //                         chat: chat,
+// // // // // // // //                         onTap: () {
+// // // // // // // //                           Navigator.push(
+// // // // // // // //                             context,
+// // // // // // // //                             MaterialPageRoute(
+// // // // // // // //                               builder: (context) => ChatView(chat: chat),
+// // // // // // // //                             ),
+// // // // // // // //                           );
+// // // // // // // //                         },
+// // // // // // // //                         onDelete: () {
+// // // // // // // //                           viewModel.deleteChat(chat.id);
+// // // // // // // //                         },
+// // // // // // // //                       );
+// // // // // // // //                     },
+// // // // // // // //                   ),
+// // // // // // // //                 ),
+// // // // // // // //               ],
+// // // // // // // //             );
+// // // // // // // //           },
+// // // // // // // //         ),
+// // // // // // // //         floatingActionButton: FloatingActionButton(
+// // // // // // // //           heroTag: "_home_chats_screen",
+// // // // // // // //           onPressed: () {
+// // // // // // // //             Navigator.push(
+// // // // // // // //               context,
+// // // // // // // //               MaterialPageRoute(
+// // // // // // // //                 builder: (context) => const NewChatView(),
+// // // // // // // //               ),
+// // // // // // // //             );
+// // // // // // // //           },
+// // // // // // // //           backgroundColor: AppColors.primaryColor,
+// // // // // // // //           child: const Icon(
+// // // // // // // //             Icons.add_comment_rounded,
+// // // // // // // //             color: Colors.white,
+// // // // // // // //             size: 23,
+// // // // // // // //           ),
+// // // // // // // //         ),
+// // // // // // // //       ),
+// // // // // // // //     );
+// // // // // // // //   }
+// // // // // // // // }
+
+// // // // // // // import 'package:attendance_app/core/utils/app_colors.dart';
+// // // // // // // import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
+// // // // // // // import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
+// // // // // // // import 'package:attendance_app/features/chats/presentation/views/chat_view.dart';
+// // // // // // // import 'package:attendance_app/features/chats/presentation/views/new_chat_view.dart';
+// // // // // // // import 'package:attendance_app/features/chats/presentation/views/user_profile_view.dart';
+// // // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
+// // // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
+// // // // // // // import 'package:flutter/material.dart';
+// // // // // // // import 'package:provider/provider.dart';
+
+// // // // // // // class HomeChatsView extends StatelessWidget {
+// // // // // // //   const HomeChatsView({super.key});
+
+// // // // // // //   @override
+// // // // // // //   Widget build(BuildContext context) {
+// // // // // // //     return ChangeNotifierProvider(
+// // // // // // //       create: (context) => ChatViewModel(ChatRepository()),
+// // // // // // //       child: Scaffold(
+// // // // // // //         backgroundColor: Colors.white,
+// // // // // // //         appBar: AppBar(
+// // // // // // //           backgroundColor: AppColors.primaryColor,
+// // // // // // //           title: const Text(
+// // // // // // //             'Chats',
+// // // // // // //             style: TextStyle(
+// // // // // // //               fontSize: 25,
+// // // // // // //               fontWeight: FontWeight.bold,
+// // // // // // //               color: Colors.white,
+// // // // // // //             ),
+// // // // // // //           ),
+// // // // // // //           elevation: 0,
+// // // // // // //           actions: [
+// // // // // // //             Padding(
+// // // // // // //               padding: const EdgeInsets.all(8.0),
+// // // // // // //               child: CircleAvatar(
+// // // // // // //                 backgroundColor: Colors.white,
+// // // // // // //                 child: IconButton(
+// // // // // // //                   icon: const Icon(
+// // // // // // //                     Icons.person,
+// // // // // // //                     color: AppColors.primaryColor,
+// // // // // // //                   ),
+// // // // // // //                   onPressed: () {
+// // // // // // //                     Navigator.push(
+// // // // // // //                       context,
+// // // // // // //                       MaterialPageRoute(
+// // // // // // //                         builder: (context) => const UserProfileView(),
+// // // // // // //                       ),
+// // // // // // //                     );
+// // // // // // //                   },
+// // // // // // //                 ),
+// // // // // // //               ),
+// // // // // // //             ),
+// // // // // // //           ],
+// // // // // // //         ),
+// // // // // // //         body: Consumer<ChatViewModel>(
+// // // // // // //           builder: (context, viewModel, child) {
+// // // // // // //             if (viewModel.isLoading) {
+// // // // // // //               return const Center(
+// // // // // // //                 child: CircularProgressIndicator(
+// // // // // // //                   color: AppColors.primaryColor,
+// // // // // // //                 ),
+// // // // // // //               );
+// // // // // // //             }
+// // // // // // //             if (viewModel.errorMessage != null) {
+// // // // // // //               return Center(child: Text(viewModel.errorMessage!));
+// // // // // // //             }
+// // // // // // //             if (viewModel.chats.isEmpty) {
+// // // // // // //               return const Center(
+// // // // // // //                 child: Text(
+// // // // // // //                   'No chats available. Start a new chat!',
+// // // // // // //                   style: TextStyle(fontSize: 16, color: Colors.grey),
+// // // // // // //                 ),
+// // // // // // //               );
+// // // // // // //             }
+// // // // // // //             return Column(
+// // // // // // //               children: [
+// // // // // // //                 Padding(
+// // // // // // //                   padding: const EdgeInsets.symmetric(
+// // // // // // //                       horizontal: 16.0, vertical: 8.0),
+// // // // // // //                   child: SearchChatsTextField(
+// // // // // // //                     hintText: 'Search or start a new chat',
+// // // // // // //                     onChanged: (query) {
+// // // // // // //                       viewModel.filterChats(query);
+// // // // // // //                     },
+// // // // // // //                   ),
+// // // // // // //                 ),
+// // // // // // //                 Expanded(
+// // // // // // //                   child: ListView.builder(
+// // // // // // //                     itemCount: viewModel.chats.length,
+// // // // // // //                     itemBuilder: (context, index) {
+// // // // // // //                       final chat = viewModel.chats[index];
+// // // // // // //                       return LongPressChatItem(
+// // // // // // //                         chat: chat,
+// // // // // // //                         onTap: () {
+// // // // // // //                           Navigator.push(
+// // // // // // //                             context,
+// // // // // // //                             MaterialPageRoute(
+// // // // // // //                               builder: (context) => ChatView(chat: chat),
+// // // // // // //                             ),
+// // // // // // //                           );
+// // // // // // //                         },
+// // // // // // //                         onDelete: () {
+// // // // // // //                           viewModel.deleteChat(chat.id);
+// // // // // // //                         },
+// // // // // // //                       );
+// // // // // // //                     },
+// // // // // // //                   ),
+// // // // // // //                 ),
+// // // // // // //               ],
+// // // // // // //             );
+// // // // // // //           },
+// // // // // // //         ),
+// // // // // // //         floatingActionButton: FloatingActionButton(
+// // // // // // //           heroTag: "_home_chats_screen",
+// // // // // // //           onPressed: () {
+// // // // // // //             Navigator.push(
+// // // // // // //               context,
+// // // // // // //               MaterialPageRoute(
+// // // // // // //                 builder: (context) => const NewChatView(),
+// // // // // // //               ),
+// // // // // // //             );
+// // // // // // //           },
+// // // // // // //           backgroundColor: AppColors.primaryColor,
+// // // // // // //           child: const Icon(
+// // // // // // //             Icons.add_comment_rounded,
+// // // // // // //             color: Colors.white,
+// // // // // // //             size: 23,
+// // // // // // //           ),
+// // // // // // //         ),
+// // // // // // //       ),
+// // // // // // //     );
+// // // // // // //   }
+// // // // // // // }
+
+// // // // // // import 'package:attendance_app/core/utils/app_colors.dart';
+// // // // // // import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
+// // // // // // import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
+// // // // // // import 'package:attendance_app/features/chats/presentation/views/chat_view.dart';
+// // // // // // import 'package:attendance_app/features/chats/presentation/views/new_chat_view.dart';
+// // // // // // import 'package:attendance_app/features/chats/presentation/views/user_profile_view.dart';
+// // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
+// // // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
+// // // // // // import 'package:flutter/material.dart';
+// // // // // // import 'package:provider/provider.dart';
+
+// // // // // // class HomeChatsView extends StatelessWidget {
+// // // // // //   const HomeChatsView({super.key});
+
+// // // // // //   @override
+// // // // // //   Widget build(BuildContext context) {
+// // // // // //     return ChangeNotifierProvider(
+// // // // // //       create: (context) => ChatViewModel(ChatRepository()),
+// // // // // //       child: Scaffold(
+// // // // // //         backgroundColor: Colors.white,
+// // // // // //         appBar: AppBar(
+// // // // // //           backgroundColor: AppColors.primaryColor,
+// // // // // //           title: const Text(
+// // // // // //             'Chats',
+// // // // // //             style: TextStyle(
+// // // // // //               fontSize: 25,
+// // // // // //               fontWeight: FontWeight.bold,
+// // // // // //               color: Colors.white,
+// // // // // //             ),
+// // // // // //           ),
+// // // // // //           elevation: 0,
+// // // // // //           actions: [
+// // // // // //             Padding(
+// // // // // //               padding: const EdgeInsets.all(8.0),
+// // // // // //               child: CircleAvatar(
+// // // // // //                 backgroundColor: Colors.white,
+// // // // // //                 child: IconButton(
+// // // // // //                   icon: const Icon(
+// // // // // //                     Icons.person,
+// // // // // //                     color: AppColors.primaryColor,
+// // // // // //                   ),
+// // // // // //                   onPressed: () {
+// // // // // //                     Navigator.push(
+// // // // // //                       context,
+// // // // // //                       MaterialPageRoute(
+// // // // // //                         builder: (context) => const UserProfileView(),
+// // // // // //                       ),
+// // // // // //                     );
+// // // // // //                   },
+// // // // // //                 ),
+// // // // // //               ),
+// // // // // //             ),
+// // // // // //           ],
+// // // // // //         ),
+// // // // // //         body: Consumer<ChatViewModel>(
+// // // // // //           builder: (context, viewModel, child) {
+// // // // // //             if (viewModel.isLoading) {
+// // // // // //               return const Center(
+// // // // // //                 child: CircularProgressIndicator(
+// // // // // //                   color: AppColors.primaryColor,
+// // // // // //                 ),
+// // // // // //               );
+// // // // // //             }
+// // // // // //             if (viewModel.errorMessage != null) {
+// // // // // //               return Center(
+// // // // // //                 child: Column(
+// // // // // //                   mainAxisAlignment: MainAxisAlignment.center,
+// // // // // //                   children: [
+// // // // // //                     Text(viewModel.errorMessage!),
+// // // // // //                     const SizedBox(height: 16),
+// // // // // //                     ElevatedButton(
+// // // // // //                       onPressed: () {
+// // // // // //                         viewModel.notifyListeners(); // إعادة تحميل
+// // // // // //                       },
+// // // // // //                       style: ElevatedButton.styleFrom(
+// // // // // //                         backgroundColor: AppColors.primaryColor,
+// // // // // //                       ),
+// // // // // //                       child: const Text(
+// // // // // //                         'Retry',
+// // // // // //                         style: TextStyle(color: Colors.white),
+// // // // // //                       ),
+// // // // // //                     ),
+// // // // // //                   ],
+// // // // // //                 ),
+// // // // // //               );
+// // // // // //             }
+// // // // // //             if (viewModel.chats.isEmpty) {
+// // // // // //               return const Center(
+// // // // // //                 child: Text(
+// // // // // //                   'No chats available. Start a new chat!',
+// // // // // //                   style: TextStyle(fontSize: 16, color: Colors.grey),
+// // // // // //                 ),
+// // // // // //               );
+// // // // // //             }
+// // // // // //             return Column(
+// // // // // //               children: [
+// // // // // //                 Padding(
+// // // // // //                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+// // // // // //                   child: SearchChatsTextField(
+// // // // // //                     hintText: 'Search or start a new chat',
+// // // // // //                     onChanged: (query) {
+// // // // // //                       viewModel.filterChats(query);
+// // // // // //                     },
+// // // // // //                   ),
+// // // // // //                 ),
+// // // // // //                 Expanded(
+// // // // // //                   child: ListView.builder(
+// // // // // //                     itemCount: viewModel.chats.length,
+// // // // // //                     itemBuilder: (context, index) {
+// // // // // //                       final chat = viewModel.chats[index];
+// // // // // //                       return LongPressChatItem(
+// // // // // //                         chat: chat,
+// // // // // //                         onTap: () {
+// // // // // //                           Navigator.push(
+// // // // // //                             context,
+// // // // // //                             MaterialPageRoute(
+// // // // // //                               builder: (context) => ChatView(chat: chat),
+// // // // // //                             ),
+// // // // // //                           );
+// // // // // //                         },
+// // // // // //                         onDelete: () async {
+// // // // // //                           await viewModel.deleteChat(chat.id);
+// // // // // //                           if (viewModel.errorMessage != null) {
+// // // // // //                             ScaffoldMessenger.of(context).showSnackBar(
+// // // // // //                               SnackBar(content: Text(viewModel.errorMessage!)),
+// // // // // //                             );
+// // // // // //                           }
+// // // // // //                         },
+// // // // // //                       );
+// // // // // //                     },
+// // // // // //                   ),
+// // // // // //                 ),
+// // // // // //               ],
+// // // // // //             );
+// // // // // //           },
+// // // // // //         ),
+// // // // // //         floatingActionButton: FloatingActionButton(
+// // // // // //           heroTag: "_home_chats_screen",
+// // // // // //           onPressed: () {
+// // // // // //             Navigator.push(
+// // // // // //               context,
+// // // // // //               MaterialPageRoute(
+// // // // // //                 builder: (context) => const NewChatView(),
+// // // // // //               ),
+// // // // // //             );
+// // // // // //           },
+// // // // // //           backgroundColor: AppColors.primaryColor,
+// // // // // //           child: const Icon(
+// // // // // //             Icons.add_comment_rounded,
+// // // // // //             color: Colors.white,
+// // // // // //             size: 23,
+// // // // // //           ),
+// // // // // //         ),
+// // // // // //       ),
+// // // // // //     );
+// // // // // //   }
+// // // // // // }
+
+// // // // // import 'package:attendance_app/core/utils/app_colors.dart';
+// // // // // import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
+// // // // // import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
+// // // // // import 'package:attendance_app/features/chats/presentation/views/chat_view.dart';
+// // // // // import 'package:attendance_app/features/chats/presentation/views/new_chat_view.dart';
+// // // // // import 'package:attendance_app/features/chats/presentation/views/user_profile_view.dart';
+// // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
+// // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
+// // // // // import 'package:flutter/material.dart';
+// // // // // import 'package:provider/provider.dart';
+
+// // // // // class HomeChatsView extends StatelessWidget {
+// // // // //   const HomeChatsView({super.key});
+
+// // // // //   @override
+// // // // //   Widget build(BuildContext context) {
+// // // // //     return ChangeNotifierProvider(
+// // // // //       create: (context) => ChatViewModel(ChatRepository()),
+// // // // //       child: Scaffold(
+// // // // //         backgroundColor: Colors.white,
+// // // // //         appBar: AppBar(
+// // // // //           backgroundColor: AppColors.primaryColor,
+// // // // //           title: const Text(
+// // // // //             'Chats',
+// // // // //             style: TextStyle(
+// // // // //               fontSize: 25,
+// // // // //               fontWeight: FontWeight.bold,
+// // // // //               color: Colors.white,
+// // // // //             ),
+// // // // //           ),
+// // // // //           elevation: 0,
+// // // // //           actions: [
+// // // // //             Padding(
+// // // // //               padding: const EdgeInsets.all(8.0),
+// // // // //               child: CircleAvatar(
+// // // // //                 backgroundColor: Colors.white,
+// // // // //                 child: IconButton(
+// // // // //                   icon: const Icon(
+// // // // //                     Icons.person,
+// // // // //                     color: AppColors.primaryColor,
+// // // // //                   ),
+// // // // //                   onPressed: () {
+// // // // //                     Navigator.push(
+// // // // //                       context,
+// // // // //                       MaterialPageRoute(
+// // // // //                         builder: (context) => const UserProfileView(),
+// // // // //                       ),
+// // // // //                     );
+// // // // //                   },
+// // // // //                 ),
+// // // // //               ),
+// // // // //             ),
+// // // // //           ],
+// // // // //         ),
+// // // // //         body: Consumer<ChatViewModel>(
+// // // // //           builder: (context, viewModel, child) {
+// // // // //             if (viewModel.isLoading) {
+// // // // //               return const Center(
+// // // // //                 child: CircularProgressIndicator(
+// // // // //                   color: AppColors.primaryColor,
+// // // // //                 ),
+// // // // //               );
+// // // // //             }
+// // // // //             if (viewModel.errorMessage != null) {
+// // // // //               return Center(
+// // // // //                 child: Column(
+// // // // //                   mainAxisAlignment: MainAxisAlignment.center,
+// // // // //                   children: [
+// // // // //                     Text(viewModel.errorMessage!),
+// // // // //                     const SizedBox(height: 16),
+// // // // //                     ElevatedButton(
+// // // // //                       onPressed: () {
+// // // // //                         viewModel.notifyListeners(); // إعادة تحميل
+// // // // //                       },
+// // // // //                       style: ElevatedButton.styleFrom(
+// // // // //                         backgroundColor: AppColors.primaryColor,
+// // // // //                       ),
+// // // // //                       child: const Text(
+// // // // //                         'Retry',
+// // // // //                         style: TextStyle(color: Colors.white),
+// // // // //                       ),
+// // // // //                     ),
+// // // // //                   ],
+// // // // //                 ),
+// // // // //               );
+// // // // //             }
+// // // // //             if (viewModel.chats.isEmpty) {
+// // // // //               return const Center(
+// // // // //                 child: Text(
+// // // // //                   'No chats available. Start a new chat!',
+// // // // //                   style: TextStyle(fontSize: 16, color: Colors.grey),
+// // // // //                 ),
+// // // // //               );
+// // // // //             }
+// // // // //             return Column(
+// // // // //               children: [
+// // // // //                 Padding(
+// // // // //                   padding: const EdgeInsets.symmetric(
+// // // // //                       horizontal: 16.0, vertical: 8.0),
+// // // // //                   child: SearchChatsTextField(
+// // // // //                     hintText: 'Search or start a new chat',
+// // // // //                     onChanged: (query) {
+// // // // //                       viewModel.filterChats(query);
+// // // // //                     },
+// // // // //                   ),
+// // // // //                 ),
+// // // // //                 Expanded(
+// // // // //                   child: ListView.builder(
+// // // // //                     itemCount: viewModel.chats.length,
+// // // // //                     itemBuilder: (context, index) {
+// // // // //                       final chat = viewModel.chats[index];
+// // // // //                       return LongPressChatItem(
+// // // // //                         chat: chat,
+// // // // //                         onTap: () async {
+// // // // //                           await viewModel.resetUnreadCount(chat.id);
+// // // // //                           Navigator.push(
+// // // // //                             context,
+// // // // //                             MaterialPageRoute(
+// // // // //                               builder: (context) => ChatView(chat: chat),
+// // // // //                             ),
+// // // // //                           );
+// // // // //                         },
+// // // // //                         onDelete: () async {
+// // // // //                           await viewModel.deleteChat(chat.id);
+// // // // //                           if (viewModel.errorMessage != null) {
+// // // // //                             ScaffoldMessenger.of(context).showSnackBar(
+// // // // //                               SnackBar(content: Text(viewModel.errorMessage!)),
+// // // // //                             );
+// // // // //                           }
+// // // // //                         },
+// // // // //                       );
+// // // // //                     },
+// // // // //                   ),
+// // // // //                 ),
+// // // // //               ],
+// // // // //             );
+// // // // //           },
+// // // // //         ),
+// // // // //         floatingActionButton: FloatingActionButton(
+// // // // //           heroTag: "_home_chats_screen",
+// // // // //           onPressed: () {
+// // // // //             Navigator.push(
+// // // // //               context,
+// // // // //               MaterialPageRoute(
+// // // // //                 builder: (context) => const NewChatView(),
+// // // // //               ),
+// // // // //             );
+// // // // //           },
+// // // // //           backgroundColor: AppColors.primaryColor,
+// // // // //           child: const Icon(
+// // // // //             Icons.add_comment_rounded,
+// // // // //             color: Colors.white,
+// // // // //             size: 23,
+// // // // //           ),
+// // // // //         ),
+// // // // //       ),
+// // // // //     );
+// // // // //   }
+// // // // // }
+
 // // // // import 'package:attendance_app/core/utils/app_colors.dart';
 // // // // import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
 // // // // import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
 // // // // import 'package:attendance_app/features/chats/presentation/views/chat_view.dart';
 // // // // import 'package:attendance_app/features/chats/presentation/views/new_chat_view.dart';
+// // // // import 'package:attendance_app/features/chats/presentation/views/user_profile_view.dart';
 // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
 // // // // import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
 // // // // import 'package:flutter/material.dart';
@@ -18,6 +924,7 @@
 // // // //       child: Scaffold(
 // // // //         backgroundColor: Colors.white,
 // // // //         appBar: AppBar(
+// // // //           backgroundColor: AppColors.primaryColor,
 // // // //           title: const Text(
 // // // //             'Chats',
 // // // //             style: TextStyle(
@@ -28,12 +935,25 @@
 // // // //           ),
 // // // //           elevation: 0,
 // // // //           actions: [
-// // // //             IconButton(
-// // // //               icon: const Icon(
-// // // //                 Icons.menu,
-// // // //                 color: Colors.white,
+// // // //             Padding(
+// // // //               padding: const EdgeInsets.all(8.0),
+// // // //               child: CircleAvatar(
+// // // //                 backgroundColor: Colors.white,
+// // // //                 child: IconButton(
+// // // //                   icon: const Icon(
+// // // //                     Icons.person,
+// // // //                     color: AppColors.primaryColor,
+// // // //                   ),
+// // // //                   onPressed: () {
+// // // //                     Navigator.push(
+// // // //                       context,
+// // // //                       MaterialPageRoute(
+// // // //                         builder: (context) => const UserProfileView(),
+// // // //                       ),
+// // // //                     );
+// // // //                   },
+// // // //                 ),
 // // // //               ),
-// // // //               onPressed: () {},
 // // // //             ),
 // // // //           ],
 // // // //         ),
@@ -46,11 +966,41 @@
 // // // //                 ),
 // // // //               );
 // // // //             }
+// // // //             if (viewModel.errorMessage != null) {
+// // // //               return Center(
+// // // //                 child: Column(
+// // // //                   mainAxisAlignment: MainAxisAlignment.center,
+// // // //                   children: [
+// // // //                     Text(viewModel.errorMessage!),
+// // // //                     const SizedBox(height: 16),
+// // // //                     ElevatedButton(
+// // // //                       onPressed: () {
+// // // //                         viewModel.notifyListeners(); // إعادة تحميل
+// // // //                       },
+// // // //                       style: ElevatedButton.styleFrom(
+// // // //                         backgroundColor: AppColors.primaryColor,
+// // // //                       ),
+// // // //                       child: const Text(
+// // // //                         'Retry',
+// // // //                         style: TextStyle(color: Colors.white),
+// // // //                       ),
+// // // //                     ),
+// // // //                   ],
+// // // //                 ),
+// // // //               );
+// // // //             }
+// // // //             if (viewModel.chats.isEmpty) {
+// // // //               return const Center(
+// // // //                 child: Text(
+// // // //                   'No chats available. Start a new chat!',
+// // // //                   style: TextStyle(fontSize: 16, color: Colors.grey),
+// // // //                 ),
+// // // //               );
+// // // //             }
 // // // //             return Column(
 // // // //               children: [
 // // // //                 Padding(
-// // // //                   padding: const EdgeInsets.symmetric(
-// // // //                       horizontal: 16.0, vertical: 8.0),
+// // // //                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
 // // // //                   child: SearchChatsTextField(
 // // // //                     hintText: 'Search or start a new chat',
 // // // //                     onChanged: (query) {
@@ -62,20 +1012,25 @@
 // // // //                   child: ListView.builder(
 // // // //                     itemCount: viewModel.chats.length,
 // // // //                     itemBuilder: (context, index) {
+// // // //                       final chat = viewModel.chats[index];
 // // // //                       return LongPressChatItem(
-// // // //                         chat: viewModel.chats[index],
-// // // //                         onTap: () {
+// // // //                         chat: chat,
+// // // //                         onTap: () async {
+// // // //                           await viewModel.resetUnreadCount(chat.id);
 // // // //                           Navigator.push(
 // // // //                             context,
 // // // //                             MaterialPageRoute(
-// // // //                               builder: (context) => ChatView(
-// // // //                                 chat: viewModel.chats[index],
-// // // //                               ),
+// // // //                               builder: (context) => ChatView(chat: chat),
 // // // //                             ),
 // // // //                           );
 // // // //                         },
-// // // //                         onDelete: () {
-// // // //                           viewModel.deleteChat(index); // حذف الشات
+// // // //                         onDelete: () async {
+// // // //                           await viewModel.deleteChat(chat.id);
+// // // //                           if (viewModel.errorMessage != null) {
+// // // //                             ScaffoldMessenger.of(context).showSnackBar(
+// // // //                               SnackBar(content: Text(viewModel.errorMessage!)),
+// // // //                             );
+// // // //                           }
 // // // //                         },
 // // // //                       );
 // // // //                     },
@@ -128,6 +1083,7 @@
 // // //       child: Scaffold(
 // // //         backgroundColor: Colors.white,
 // // //         appBar: AppBar(
+// // //           backgroundColor: AppColors.primaryColor,
 // // //           title: const Text(
 // // //             'Chats',
 // // //             style: TextStyle(
@@ -138,62 +1094,220 @@
 // // //           ),
 // // //           elevation: 0,
 // // //           actions: [
-// // //             IconButton(
-// // //               icon: const Icon(Icons.person, color: Colors.white),
-// // //               onPressed: () {
-// // //                 Navigator.push(
-// // //                   context,
-// // //                   MaterialPageRoute(builder: (context) => const UserProfileView()),
-// // //                 );
-// // //               },
+// // //             Padding(
+// // //               padding: const EdgeInsets.all(8.0),
+// // //               child: CircleAvatar(
+// // //                 backgroundColor: Colors.white,
+// // //                 child: IconButton(
+// // //                   icon: const Icon(
+// // //                     Icons.person,
+// // //                     color: AppColors.primaryColor,
+// // //                   ),
+// // //                   onPressed: () {
+// // //                     Navigator.push(
+// // //                       context,
+// // //                       MaterialPageRoute(
+// // //                         builder: (context) => const UserProfileView(),
+// // //                       ),
+// // //                     );
+// // //                   },
+// // //                 ),
+// // //               ),
 // // //             ),
 // // //           ],
 // // //         ),
-// // //         body: Consumer<ChatViewModel>(
-// // //           builder: (context, viewModel, child) {
-// // //             if (viewModel.isLoading) {
-// // //               return const Center(
-// // //                 child: CircularProgressIndicator(
-// // //                   color: AppColors.primaryColor,
-// // //                 ),
-// // //               );
-// // //             }
-// // //             return Column(
-// // //               children: [
-// // //                 Padding(
-// // //                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-// // //                   child: SearchChatsTextField(
-// // //                     hintText: 'Search or start a new chat',
-// // //                     onChanged: (query) {
-// // //                       viewModel.filterChats(query);
-// // //                     },
+// // //         // body: SafeArea(
+// // //         //   child: Consumer<ChatViewModel>(
+// // //         //     builder: (context, viewModel, child) {
+// // //         //       if (viewModel.isLoading) {
+// // //         //         return const Center(
+// // //         //           child: CircularProgressIndicator(
+// // //         //             color: AppColors.primaryColor,
+// // //         //           ),
+// // //         //         );
+// // //         //       }
+// // //         //       if (viewModel.errorMessage != null) {
+// // //         //         return Center(
+// // //         //           child: Column(
+// // //         //             mainAxisAlignment: MainAxisAlignment.center,
+// // //         //             children: [
+// // //         //               Text(
+// // //         //                 viewModel.errorMessage!,
+// // //         //                 style: const TextStyle(color: Colors.red, fontSize: 16),
+// // //         //               ),
+// // //         //               const SizedBox(height: 16),
+// // //         //               ElevatedButton(
+// // //         //                 onPressed: () {
+// // //         //                   viewModel.listenToChats(); // إعادة تحميل الشاتات
+// // //         //                 },
+// // //         //                 style: ElevatedButton.styleFrom(
+// // //         //                   backgroundColor: AppColors.primaryColor,
+// // //         //                   padding: const EdgeInsets.symmetric(
+// // //         //                       horizontal: 24, vertical: 12),
+// // //         //                   shape: RoundedRectangleBorder(
+// // //         //                     borderRadius: BorderRadius.circular(20),
+// // //         //                   ),
+// // //         //                 ),
+// // //         //                 child: const Text(
+// // //         //                   'Retry',
+// // //         //                   style: TextStyle(color: Colors.white, fontSize: 16),
+// // //         //                 ),
+// // //         //               ),
+// // //         //             ],
+// // //         //           ),
+// // //         //         );
+// // //         //       }
+// // //         //       if (viewModel.chats.isEmpty) {
+// // //         //         return const Center(
+// // //         //           child: Text(
+// // //         //             'No chats available. Start a new chat!',
+// // //         //             style: TextStyle(fontSize: 16, color: Colors.grey),
+// // //         //           ),
+// // //         //         );
+// // //         //       }
+// // //         //       return Column(
+// // //         //         children: [
+// // //         //           Padding(
+// // //         //             padding: const EdgeInsets.symmetric(
+// // //         //                 horizontal: 16.0, vertical: 8.0),
+// // //         //             child: SearchChatsTextField(
+// // //         //               hintText: 'Search or start a new chat',
+// // //         //               onChanged: (query) {
+// // //         //                 viewModel.filterChats(query);
+// // //         //               },
+// // //         //             ),
+// // //         //           ),
+// // //         //           Expanded(
+// // //         //             child: ListView.builder(
+// // //         //               itemCount: viewModel.chats.length,
+// // //         //               itemBuilder: (context, index) {
+// // //         //                 final chat = viewModel.chats[index];
+// // //         //                 return LongPressChatItem(
+// // //         //                   chat: chat,
+// // //         //                   onTap: () async {
+// // //         //                     await viewModel.resetUnreadCount(chat.id);
+// // //         //                     Navigator.push(
+// // //         //                       context,
+// // //         //                       MaterialPageRoute(
+// // //         //                         builder: (context) => ChatView(chat: chat),
+// // //         //                       ),
+// // //         //                     );
+// // //         //                   },
+// // //         //                   onDelete: () async {
+// // //         //                     await viewModel.deleteChat(chat.id);
+// // //         //                     if (viewModel.errorMessage != null) {
+// // //         //                       ScaffoldMessenger.of(context).showSnackBar(
+// // //         //                         SnackBar(
+// // //         //                             content: Text(viewModel.errorMessage!)),
+// // //         //                       );
+// // //         //                     }
+// // //         //                   },
+// // //         //                 );
+// // //         //               },
+// // //         //             ),
+// // //         //           ),
+// // //         //         ],
+// // //         //       );
+// // //         //     },
+// // //         //   ),
+// // //         // ),
+
+// // //         body: SafeArea(
+// // //           child: Consumer<ChatViewModel>(
+// // //             builder: (context, viewModel, child) {
+// // //               if (viewModel.isLoading) {
+// // //                 return const Center(
+// // //                   child: CircularProgressIndicator(
+// // //                     color: AppColors.primaryColor,
 // // //                   ),
-// // //                 ),
-// // //                 Expanded(
-// // //                   child: ListView.builder(
-// // //                     itemCount: viewModel.chats.length,
-// // //                     itemBuilder: (context, index) {
-// // //                       final chat = viewModel.chats[index];
-// // //                       return LongPressChatItem(
-// // //                         chat: chat,
-// // //                         onTap: () {
-// // //                           Navigator.push(
-// // //                             context,
-// // //                             MaterialPageRoute(
-// // //                               builder: (context) => ChatView(chat: chat),
+// // //                 );
+// // //               }
+// // //               if (viewModel.errorMessage != null) {
+// // //                 return Center(
+// // //                   child: Column(
+// // //                     mainAxisAlignment: MainAxisAlignment.center,
+// // //                     children: [
+// // //                       Text(
+// // //                         viewModel.errorMessage!,
+// // //                         style: const TextStyle(color: Colors.red, fontSize: 16),
+// // //                       ),
+// // //                       const SizedBox(height: 16),
+// // //                       ElevatedButton(
+// // //                         onPressed: () {
+// // //                           viewModel.listenToChats();
+// // //                         },
+// // //                         style: ElevatedButton.styleFrom(
+// // //                           backgroundColor: AppColors.primaryColor,
+// // //                           padding: const EdgeInsets.symmetric(
+// // //                               horizontal: 24, vertical: 12),
+// // //                           shape: RoundedRectangleBorder(
+// // //                             borderRadius: BorderRadius.circular(20),
+// // //                           ),
+// // //                         ),
+// // //                         child: const Text(
+// // //                           'Retry',
+// // //                           style: TextStyle(color: Colors.white, fontSize: 16),
+// // //                         ),
+// // //                       ),
+// // //                     ],
+// // //                   ),
+// // //                 );
+// // //               }
+// // //               return Column(
+// // //                 children: [
+// // //                   Padding(
+// // //                     padding: const EdgeInsets.symmetric(
+// // //                         horizontal: 16.0, vertical: 8.0),
+// // //                     child: SearchChatsTextField(
+// // //                       hintText: 'Search or start a new chat',
+// // //                       onChanged: (query) {
+// // //                         viewModel.filterChats(query);
+// // //                       },
+// // //                     ),
+// // //                   ),
+// // //                   Expanded(
+// // //                     child: viewModel.chats.isEmpty
+// // //                         ? const Center(
+// // //                             child: Text(
+// // //                               'No chats found',
+// // //                               style:
+// // //                                   TextStyle(fontSize: 16, color: Colors.grey),
 // // //                             ),
-// // //                           );
-// // //                         },
-// // //                         onDelete: () {
-// // //                           viewModel.deleteChat(chat.id);
-// // //                         },
-// // //                       );
-// // //                     },
+// // //                           )
+// // //                         : ListView.builder(
+// // //                             itemCount: viewModel.chats.length,
+// // //                             itemBuilder: (context, index) {
+// // //                               final chat = viewModel.chats[index];
+// // //                               return LongPressChatItem(
+// // //                                 chat: chat,
+// // //                                 onTap: () async {
+// // //                                   await viewModel.resetUnreadCount(chat.id);
+// // //                                   Navigator.push(
+// // //                                     context,
+// // //                                     MaterialPageRoute(
+// // //                                       builder: (context) =>
+// // //                                           ChatView(chat: chat),
+// // //                                     ),
+// // //                                   );
+// // //                                 },
+// // //                                 onDelete: () async {
+// // //                                   await viewModel.deleteChat(chat.id);
+// // //                                   if (viewModel.errorMessage != null) {
+// // //                                     ScaffoldMessenger.of(context).showSnackBar(
+// // //                                       SnackBar(
+// // //                                           content:
+// // //                                               Text(viewModel.errorMessage!)),
+// // //                                     );
+// // //                                   }
+// // //                                 },
+// // //                               );
+// // //                             },
+// // //                           ),
 // // //                   ),
-// // //                 ),
-// // //               ],
-// // //             );
-// // //           },
+// // //                 ],
+// // //               );
+// // //             },
+// // //           ),
 // // //         ),
 // // //         floatingActionButton: FloatingActionButton(
 // // //           heroTag: "_home_chats_screen",
@@ -216,240 +1330,6 @@
 // // //     );
 // // //   }
 // // // }
-
-// // import 'package:attendance_app/core/utils/app_colors.dart';
-// // import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
-// // import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
-// // import 'package:attendance_app/features/chats/presentation/views/chat_view.dart';
-// // import 'package:attendance_app/features/chats/presentation/views/new_chat_view.dart';
-// // import 'package:attendance_app/features/chats/presentation/views/user_profile_view.dart';
-// // import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
-// // import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
-// // import 'package:flutter/material.dart';
-// // import 'package:provider/provider.dart';
-
-// // class HomeChatsView extends StatelessWidget {
-// //   const HomeChatsView({super.key});
-
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return ChangeNotifierProvider(
-// //       create: (context) => ChatViewModel(ChatRepository()),
-// //       child: Scaffold(
-// //         backgroundColor: Colors.white,
-// //         appBar: AppBar(
-// //           title: const Text(
-// //             'Chats',
-// //             style: TextStyle(
-// //               fontSize: 25,
-// //               fontWeight: FontWeight.bold,
-// //               color: Colors.white,
-// //             ),
-// //           ),
-// //           elevation: 0,
-// //           actions: [
-// //             IconButton(
-// //               icon: const Icon(Icons.person, color: Colors.white),
-// //               onPressed: () {
-// //                 Navigator.push(
-// //                   context,
-// //                   MaterialPageRoute(
-// //                     builder: (context) => const UserProfileView(),
-// //                   ),
-// //                 );
-// //               },
-// //             ),
-// //           ],
-// //         ),
-// //         body: Consumer<ChatViewModel>(
-// //           builder: (context, viewModel, child) {
-// //             if (viewModel.isLoading) {
-// //               return const Center(
-// //                 child: CircularProgressIndicator(
-// //                   color: AppColors.primaryColor,
-// //                 ),
-// //               );
-// //             }
-// //             if (viewModel.errorMessage != null) {
-// //               return Center(child: Text(viewModel.errorMessage!));
-// //             }
-// //             return Column(
-// //               children: [
-// //                 Padding(
-// //                   padding: const EdgeInsets.symmetric(
-// //                       horizontal: 16.0, vertical: 8.0),
-// //                   child: SearchChatsTextField(
-// //                     hintText: 'Search or start a new chat',
-// //                     onChanged: (query) {
-// //                       viewModel.filterChats(query);
-// //                     },
-// //                   ),
-// //                 ),
-// //                 Expanded(
-// //                   child: ListView.builder(
-// //                     itemCount: viewModel.chats.length,
-// //                     itemBuilder: (context, index) {
-// //                       final chat = viewModel.chats[index];
-// //                       print(
-// //                           'Chat displayed: ${chat.name}'); // للتأكد إن الدردشات بتظهر
-// //                       return LongPressChatItem(
-// //                         chat: chat,
-// //                         onTap: () {
-// //                           Navigator.push(
-// //                             context,
-// //                             MaterialPageRoute(
-// //                               builder: (context) => ChatView(chat: chat),
-// //                             ),
-// //                           );
-// //                         },
-// //                         onDelete: () {
-// //                           viewModel.deleteChat(chat.id);
-// //                         },
-// //                       );
-// //                     },
-// //                   ),
-// //                 ),
-// //               ],
-// //             );
-// //           },
-// //         ),
-// //         floatingActionButton: FloatingActionButton(
-// //           heroTag: "_home_chats_screen",
-// //           onPressed: () {
-// //             Navigator.push(
-// //               context,
-// //               MaterialPageRoute(
-// //                 builder: (context) => const NewChatView(),
-// //               ),
-// //             );
-// //           },
-// //           backgroundColor: AppColors.primaryColor,
-// //           child: const Icon(
-// //             Icons.add_comment_rounded,
-// //             color: Colors.white,
-// //             size: 23,
-// //           ),
-// //         ),
-// //       ),
-// //     );
-// //   }
-// // }
-
-// import 'package:attendance_app/core/utils/app_colors.dart';
-// import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
-// import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
-// import 'package:attendance_app/features/chats/presentation/views/chat_view.dart';
-// import 'package:attendance_app/features/chats/presentation/views/new_chat_view.dart';
-// import 'package:attendance_app/features/chats/presentation/views/user_profile_view.dart';
-// import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
-// import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-
-// class HomeChatsView extends StatelessWidget {
-//   const HomeChatsView({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return ChangeNotifierProvider(
-//       create: (context) => ChatViewModel(ChatRepository()),
-//       child: Scaffold(
-//         backgroundColor: Colors.white,
-//         appBar: AppBar(
-//           title: const Text(
-//             'Chats',
-//             style: TextStyle(
-//               fontSize: 25,
-//               fontWeight: FontWeight.bold,
-//               color: Colors.white,
-//             ),
-//           ),
-//           elevation: 0,
-//           actions: [
-//             IconButton(
-//               icon: const Icon(Icons.person, color: Colors.white),
-//               onPressed: () {
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                     builder: (context) => const UserProfileView(),
-//                   ),
-//                 );
-//               },
-//             ),
-//           ],
-//         ),
-//         body: Consumer<ChatViewModel>(
-//           builder: (context, viewModel, child) {
-//             if (viewModel.isLoading) {
-//               return const Center(
-//                 child: CircularProgressIndicator(
-//                   color: AppColors.primaryColor,
-//                 ),
-//               );
-//             }
-//             if (viewModel.errorMessage != null) {
-//               return Center(child: Text(viewModel.errorMessage!));
-//             }
-//             return Column(
-//               children: [
-//                 Padding(
-//                   padding: const EdgeInsets.symmetric(
-//                       horizontal: 16.0, vertical: 8.0),
-//                   child: SearchChatsTextField(
-//                     hintText: 'Search or start a new chat',
-//                     onChanged: (query) {
-//                       viewModel.filterChats(query);
-//                     },
-//                   ),
-//                 ),
-//                 Expanded(
-//                   child: ListView.builder(
-//                     itemCount: viewModel.chats.length,
-//                     itemBuilder: (context, index) {
-//                       final chat = viewModel.chats[index];
-//                       return LongPressChatItem(
-//                         chat: chat,
-//                         onTap: () {
-//                           Navigator.push(
-//                             context,
-//                             MaterialPageRoute(
-//                               builder: (context) => ChatView(chat: chat),
-//                             ),
-//                           );
-//                         },
-//                         onDelete: () {
-//                           viewModel.deleteChat(chat.id);
-//                         },
-//                       );
-//                     },
-//                   ),
-//                 ),
-//               ],
-//             );
-//           },
-//         ),
-//         floatingActionButton: FloatingActionButton(
-//           heroTag: "_home_chats_screen",
-//           onPressed: () {
-//             Navigator.push(
-//               context,
-//               MaterialPageRoute(
-//                 builder: (context) => const NewChatView(),
-//               ),
-//             );
-//           },
-//           backgroundColor: AppColors.primaryColor,
-//           child: const Icon(
-//             Icons.add_comment_rounded,
-//             color: Colors.white,
-//             size: 23,
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
@@ -505,63 +1385,103 @@ class HomeChatsView extends StatelessWidget {
             ),
           ],
         ),
-        body: Consumer<ChatViewModel>(
-          builder: (context, viewModel, child) {
-            if (viewModel.isLoading) {
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.primaryColor,
-                ),
-              );
-            }
-            if (viewModel.errorMessage != null) {
-              return Center(child: Text(viewModel.errorMessage!));
-            }
-            if (viewModel.chats.isEmpty) {
-              return const Center(
-                child: Text(
-                  'No chats available. Start a new chat!',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-              );
-            }
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 8.0),
-                  child: SearchChatsTextField(
-                    hintText: 'Search or start a new chat',
-                    onChanged: (query) {
-                      viewModel.filterChats(query);
-                    },
+        body: SafeArea(
+          child: Consumer<ChatViewModel>(
+            builder: (context, viewModel, child) {
+              if (viewModel.isLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryColor,
                   ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: viewModel.chats.length,
-                    itemBuilder: (context, index) {
-                      final chat = viewModel.chats[index];
-                      return LongPressChatItem(
-                        chat: chat,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatView(chat: chat),
+                );
+              }
+              if (viewModel.errorMessage != null) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        viewModel.errorMessage!,
+                        style: const TextStyle(color: Colors.red, fontSize: 16),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          viewModel.listenToChats();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: const Text(
+                          'Retry',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0),
+                    child: SearchChatsTextField(
+                      hintText: 'Search or start a new chat',
+                      onChanged: (query) {
+                        viewModel.filterChats(query);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: viewModel.chats.isEmpty &&
+                            viewModel.searchQuery.isNotEmpty
+                        ? const Center(
+                            child: Text(
+                              'No chats found',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey),
                             ),
-                          );
-                        },
-                        onDelete: () {
-                          viewModel.deleteChat(chat.id);
-                        },
-                      );
-                    },
+                          )
+                        : ListView.builder(
+                            itemCount: viewModel.chats.length,
+                            itemBuilder: (context, index) {
+                              final chat = viewModel.chats[index];
+                              return LongPressChatItem(
+                                chat: chat,
+                                onTap: () async {
+                                  //   await viewModel.resetUnreadCount(chat.id);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ChatView(chat: chat),
+                                    ),
+                                  );
+                                },
+                                onDelete: () async {
+                                  await viewModel.deleteChat(chat.id);
+                                  if (viewModel.errorMessage != null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content:
+                                              Text(viewModel.errorMessage!)),
+                                    );
+                                  }
+                                },
+                              );
+                            },
+                          ),
                   ),
-                ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
         floatingActionButton: FloatingActionButton(
           heroTag: "_home_chats_screen",

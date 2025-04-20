@@ -1926,37 +1926,98 @@ class _UserProfileViewState extends State<UserProfileView> {
   //   }
   // }
 
-  void _saveChanges() {
+  // void _saveChanges() {
+  //   if (_formKey.currentState!.validate()) {
+  //     final user = FirebaseAuth.instance.currentUser;
+  //     if (user != null) {
+  //       final repo = ChatRepository();
+  //       // Fire-and-forget: Update name in the background
+  //       repo.updateUserName(_userNameController.text.trim()).then((_) {
+  //         // ScaffoldMessenger.of(context).showSnackBar(
+  //         //   const SnackBar(
+  //         //     content: Text('Name updated successfully'),
+  //         //     backgroundColor: Colors.green,
+  //         //   ),
+  //         // );
+
+  //         print('Name updated successfully');
+  //       }).catchError((e) {
+  //         // ScaffoldMessenger.of(context).showSnackBar(
+  //         //   SnackBar(content: Text('Failed to update name: $e')),
+  //         // );
+
+  //         print('Failed to update name: $e');
+  //       });
+
+  //       user.updateDisplayName(_userNameController.text.trim()).then((_) {
+  //         print('Firebase display name updated');
+  //       }).catchError((e) {
+  //         print('Error updating Firebase display name: $e');
+  //       });
+
+  //       // Close the screen immediately
+  //       Navigator.pop(context);
+  //     }
+  //   }
+  // }
+
+  Future<void> _saveChanges() async {
     if (_formKey.currentState!.validate()) {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        final repo = ChatRepository();
-        // Fire-and-forget: Update name in the background
-        repo.updateUserName(_userNameController.text.trim()).then((_) {
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   const SnackBar(
-          //     content: Text('Name updated successfully'),
-          //     backgroundColor: Colors.green,
-          //   ),
-          // );
+      setState(() => _isLoading = true);
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          final repo = ChatRepository();
+          await repo.updateUserName(_userNameController.text.trim());
+          await user.updateDisplayName(_userNameController.text.trim());
 
-          print('Name updated successfully');
-        }).catchError((e) {
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(content: Text('Failed to update name: $e')),
-          // );
+          // تحديث الصورة إذا تم اختيار صورة جديدة
+          if (_selectedImage != null) {
+            await _uploadImageToStorage();
+          }
 
-          print('Failed to update name: $e');
-        });
+          // تحديث جميع الشاتات المرتبطة بالمستخدم
+          final chatsSnapshot = await FirebaseFirestore.instance
+              .collection('chats')
+              .where('participants', arrayContains: user.uid)
+              .get();
 
-        user.updateDisplayName(_userNameController.text.trim()).then((_) {
-          print('Firebase display name updated');
-        }).catchError((e) {
-          print('Error updating Firebase display name: $e');
-        });
+          for (var chatDoc in chatsSnapshot.docs) {
+            final chatData = chatDoc.data();
+            final names = Map<String, dynamic>.from(chatData['names'] ?? {});
+            final avatars =
+                Map<String, dynamic>.from(chatData['avatars'] ?? {});
 
-        // Close the screen immediately
-        Navigator.pop(context);
+            names[user.uid] = _userNameController.text.trim();
+            if (_avatarUrl != null && _avatarUrl!.isNotEmpty) {
+              avatars[user.uid] = _avatarUrl;
+            }
+
+            await FirebaseFirestore.instance
+                .collection('chats')
+                .doc(chatDoc.id)
+                .update({
+              'names': names,
+              'avatars': avatars,
+              'timestamp': FieldValue.serverTimestamp(),
+            });
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile updated successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile: $e')),
+        );
+      } finally {
+        setState(() => _isLoading = false);
       }
     }
   }
