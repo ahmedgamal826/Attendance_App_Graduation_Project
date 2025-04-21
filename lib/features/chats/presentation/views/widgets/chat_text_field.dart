@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
+import 'package:file_picker/file_picker.dart'; // إضافة مكتبة file_picker
 
 class ChatTextField extends StatefulWidget {
   const ChatTextField({
@@ -47,6 +48,43 @@ class _ChatTextFieldState extends State<ChatTextField> {
     }
   }
 
+  // دالة جديدة لاختيار مستند
+  Future<void> _pickDocument() async {
+    try {
+      // استخدام file_picker لاختيار ملف
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: [
+          'pdf',
+          'doc',
+          'docx'
+        ], // تحديد أنواع الملفات المسموح بيها
+      );
+
+      if (result != null && mounted) {
+        File documentFile = File(result.files.single.path!);
+        try {
+          widget.onUploadingImage(true); // إعادة استخدام نفس الـ callback للصور
+          final viewModel = Provider.of<ChatViewModel>(context, listen: false);
+          await viewModel.sendDocument(
+              widget.chatId, documentFile, widget.onUploadingImage);
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to upload document: $e')),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking document: $e')),
+        );
+      }
+    }
+  }
+
   void _showAttachmentSheet() {
     if (!mounted) return;
     showModalBottomSheet(
@@ -78,26 +116,7 @@ class _ChatTextFieldState extends State<ChatTextField> {
               title: const Text('Document'),
               onTap: () {
                 Navigator.pop(context);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Document selection coming soon!')),
-                  );
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.insert_drive_file,
-                  color: AppColors.primaryColor),
-              title: const Text('File'),
-              onTap: () {
-                Navigator.pop(context);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('File selection coming soon!')),
-                  );
-                }
+                _pickDocument(); // استدعاء دالة اختيار المستند
               },
             ),
           ],

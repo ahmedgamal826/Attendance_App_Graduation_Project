@@ -30,9 +30,9 @@ class ChatItem extends StatelessWidget {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     print('Last message for chat ${chat.name}: ${chat.lastMessage}');
-    final isLastMessageImage = chat.lastMessage == 'Photo';
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
     // جلب الرسالة الأخيرة من messages
@@ -40,12 +40,15 @@ class ChatItem extends StatelessWidget {
     final isMe =
         lastMessage != null && lastMessage['senderId'] == currentUserId;
     final isRead = lastMessage != null && lastMessage['isRead'] == true;
+    final isLastMessageImage =
+        lastMessage != null && lastMessage['isImage'] == true;
+    final isLastMessageDocument =
+        lastMessage != null && lastMessage['isDocument'] == true;
 
     // فحص unreadCount للتأكد من أنه عدد صحيح وأكبر من 0
     final unreadCount =
         chat.unreadCount is int && chat.unreadCount > 0 ? chat.unreadCount : 0;
-    print(
-        'Unread count for chat ${chat.name} (${chat.id}): $unreadCount'); // Logging
+    print('Unread count for chat ${chat.name} (${chat.id}): $unreadCount');
 
     return ListTile(
       onTap: onTap,
@@ -112,6 +115,23 @@ class ChatItem extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
               style: TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+          ] else if (isLastMessageDocument) ...[
+            const Icon(
+              Icons.description,
+              size: 16,
+              color: Colors.grey,
+            ),
+            const SizedBox(width: 5),
+            Expanded(
+              child: Text(
+                lastMessage != null && lastMessage['fileName'] != null
+                    ? lastMessage['fileName']
+                    : 'Document', // نعرض اسم الملف لو موجود، ولو مش موجود نعرض "Document"
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
+              ),
             ),
           ] else ...[
             Expanded(

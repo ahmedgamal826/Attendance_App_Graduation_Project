@@ -295,6 +295,7 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
+  // تحديث دالة sendImage (اختياري لو عايز تعمم)
   Future<void> sendImage(
       String chatId, File image, Function(bool) onUploadingImage) async {
     try {
@@ -322,6 +323,7 @@ class ChatViewModel extends ChangeNotifier {
         'senderId': currentUser.uid,
         'text': imageUrl,
         'isImage': true,
+        'isDocument': false, // إضافة الحقل للتوافق
         'time': DateTime.now().toIso8601String(),
         'isRead': false,
       };
@@ -340,6 +342,56 @@ class ChatViewModel extends ChangeNotifier {
       notifyListeners();
     } finally {
       onUploadingImage(false);
+    }
+  }
+
+  Future<void> sendDocument(
+      String chatId, File document, Function(bool) onUploadingDocument) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception('No user signed in');
+      }
+
+      final chatIndex = _chats.indexWhere((chat) => chat.id == chatId);
+      if (chatIndex == -1) return;
+
+      final recipientId = _chats[chatIndex]
+          .participants
+          .firstWhere((id) => id != currentUser.uid);
+
+      onUploadingDocument(true);
+      final fileName = document.path.split('/').last; // استخراج اسم الملف
+      final storageRef = FirebaseStorage.instance.ref().child(
+          'chat_documents/${DateTime.now().millisecondsSinceEpoch}_$fileName');
+      await storageRef.putFile(document);
+      final documentUrl = await storageRef.getDownloadURL();
+
+      final messageData = {
+        'messageId': DateTime.now().millisecondsSinceEpoch.toString(),
+        'senderId': currentUser.uid,
+        'text': documentUrl,
+        'fileName': fileName, // إضافة اسم الملف
+        'isImage': false,
+        'isDocument': true,
+        'time': DateTime.now().toIso8601String(),
+        'isRead': false,
+      };
+
+      await _chatRepository.updateMessages(chatId, messageData, recipientId);
+
+      _localMessages.add({
+        ...messageData,
+        'isMe': true,
+      });
+
+      notifyListeners();
+      _scrollToBottom();
+    } catch (e) {
+      _errorMessage = 'Failed to send document: $e';
+      notifyListeners();
+    } finally {
+      onUploadingDocument(false);
     }
   }
 
