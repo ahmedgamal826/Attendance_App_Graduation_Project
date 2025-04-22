@@ -3,6 +3,7 @@ import 'package:attendance_app/features/home/presentation/views/student_attendan
 import 'package:attendance_app/features/home/presentation/views/widgets/dark_mode_toggle.dart';
 import 'package:attendance_app/features/home/presentation/views/widgets/open_camera_screen.dart';
 import 'package:attendance_app/features/notifications/presentation/views/admin_notifications.dart';
+import 'package:attendance_app/features/notifications/presentation/views/firebase_notification_view_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -113,10 +114,17 @@ class _AdminDrawerState extends State<AdminDrawer> {
               ),
             ),
             onTap: () {
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => AdminNotifications(),
+              //   ),
+              // );
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AdminNotifications(),
+                  builder: (context) => const FirebaseNotificationViewTest(),
                 ),
               );
             },

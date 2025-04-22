@@ -43,12 +43,14 @@ import 'package:attendance_app/features/chat_gpt/presentation/manager/Providers/
 import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
 import 'package:attendance_app/features/chats/presentation/manager/chat_view_model_provider.dart';
 import 'package:attendance_app/features/home/presentation/manager/provider/dark_mode_provider.dart';
+import 'package:attendance_app/features/notifications/presentation/manager/messaging_config.dart';
 import 'package:attendance_app/features/questionnaire/presentation/viewmodels/home_questionnaires_viewmodel.dart';
 import 'package:attendance_app/features/splash/presentation/views/splash_view.dart';
 import 'package:attendance_app/firebase_options.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -65,6 +67,9 @@ void main() async {
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.debug,
   );
+
+  MessagingConfig.initFirebaseMessaging();
+  FirebaseMessaging.onBackgroundMessage(MessagingConfig.messageHandler);
 
   // Initialize Hive storage
   await ChatProvider.initHive();
@@ -92,9 +97,14 @@ void main() async {
 class AttendanceApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    FirebaseMessaging.instance
+        .getToken()
+        .then((value) => print("Valueeeeeeeeee = $value"));
+
     return Consumer<DarkModeProvider>(
       builder: (context, darkModeProvider, child) {
         return MaterialApp(
+          navigatorKey: MessagingConfig.navigatorKey,
           debugShowCheckedModeBanner: false,
           title: 'Attendance App',
           // theme: ThemeData.light(), // السمة الفاتحة

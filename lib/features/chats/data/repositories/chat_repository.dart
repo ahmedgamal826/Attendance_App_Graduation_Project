@@ -355,4 +355,21 @@ class ChatRepository {
       throw Exception('خطأ أثناء إعادة تعيين عدد الرسائل غير المقروءة: $e');
     }
   }
+
+  ///////////////////////////////
+  // Send a message to Firestore
+//   Future<void> sendMessage(
+//       String chatId, Map<String, dynamic> messageData) async {
+//     try {
+//       await FirebaseFirestore.instance
+//           .collection('users_chats')
+//           .doc(chatId)
+//           .collection('messages')
+//           .doc(messageData['messageId'])
+//           .set(messageData);
+//     } catch (e) {
+//       throw Exception('Failed to send message: $e');
+//     }
+//   }
+// }
 }

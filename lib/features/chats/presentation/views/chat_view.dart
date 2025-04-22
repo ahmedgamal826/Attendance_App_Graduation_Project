@@ -241,6 +241,55 @@ class _ChatViewState extends State<ChatView> {
             children: [
               Column(
                 children: [
+                  // Expanded(
+                  //   child: ListView.builder(
+                  //     controller: viewModel.scrollController,
+                  //     physics: const AlwaysScrollableScrollPhysics(),
+                  //     padding: const EdgeInsets.symmetric(
+                  //         vertical: 10, horizontal: 10),
+                  //     cacheExtent: 1000.0,
+                  //     itemCount: viewModel.localMessages.length + 1,
+                  //     itemBuilder: (context, index) {
+                  //       if (index == 0) {
+                  //         if (viewModel.localMessages.isNotEmpty) {
+                  //           final latestTime = DateTime.now();
+                  //           return Center(
+                  //             child: Padding(
+                  //               padding:
+                  //                   const EdgeInsets.symmetric(vertical: 10),
+                  //               child: Container(
+                  //                 padding: const EdgeInsets.symmetric(
+                  //                     horizontal: 12, vertical: 6),
+                  //                 decoration: BoxDecoration(
+                  //                   color: Colors.green.withOpacity(0.2),
+                  //                   borderRadius: BorderRadius.circular(16),
+                  //                 ),
+                  //                 child: Text(
+                  //                   '${latestTime.day}/${latestTime.month}/${latestTime.year}',
+                  //                   style: const TextStyle(
+                  //                     fontSize: 14,
+                  //                     color: Colors.black54,
+                  //                     fontWeight: FontWeight.w500,
+                  //                   ),
+                  //                 ),
+                  //               ),
+                  //             ),
+                  //           );
+                  //         }
+                  //         return const SizedBox.shrink();
+                  //       }
+                  //       final messageIndex = index - 1;
+                  //       final message = viewModel.localMessages[messageIndex];
+                  //       final isMe = message['isMe'] as bool;
+                  //       return ChatsBubble(
+                  //         isMe: isMe,
+                  //         message: message,
+                  //         chatId: widget.chat.id,
+                  //       );
+                  //     },
+                  //   ),
+                  // ),
+
                   Expanded(
                     child: ListView.builder(
                       controller: viewModel.scrollController,
@@ -267,10 +316,9 @@ class _ChatViewState extends State<ChatView> {
                                   child: Text(
                                     '${latestTime.day}/${latestTime.month}/${latestTime.year}',
                                     style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                        fontSize: 14,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w500),
                                   ),
                                 ),
                               ),
@@ -280,7 +328,11 @@ class _ChatViewState extends State<ChatView> {
                         }
                         final messageIndex = index - 1;
                         final message = viewModel.localMessages[messageIndex];
-                        final isMe = message['isMe'] as bool;
+                        // Determine isMe based on senderId
+                        final currentUserId =
+                            FirebaseAuth.instance.currentUser?.uid;
+                        final isMe = currentUserId != null &&
+                            message['senderId'] == currentUserId;
                         return ChatsBubble(
                           isMe: isMe,
                           message: message,

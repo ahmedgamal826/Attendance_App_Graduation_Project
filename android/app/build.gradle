@@ -66,6 +66,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
@@ -100,5 +101,6 @@ flutter {
 dependencies {
     // Ensure compatibility with compileSdk 35
     implementation 'androidx.core:core-ktx:1.15.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
     // FlutterFire dependencies are managed by google-services plugin
 }

@@ -1,11 +1,15 @@
 import 'dart:async'; // Required for StreamSubscription
+import 'dart:developer';
 import 'package:attendance_app/features/chats/data/models/chat_model.dart';
 import 'package:attendance_app/features/chats/data/repositories/chat_repository.dart';
+import 'package:attendance_app/features/notifications/presentation/manager/send_notifications_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
+
+import 'package:uuid/uuid.dart';
 
 class ChatViewModel extends ChangeNotifier {
   final ChatRepository _chatRepository;
@@ -207,7 +211,7 @@ class ChatViewModel extends ChangeNotifier {
             };
           }).toList();
           notifyListeners();
-          _scrollToBottom();
+          scrollToBottom();
         }
       }
     }, onError: (error) {
@@ -219,10 +223,10 @@ class ChatViewModel extends ChangeNotifier {
     _chatRepository.markMessagesAsRead(chat.id, currentUser.uid);
 
     notifyListeners();
-    _scrollToBottom();
+    scrollToBottom();
   }
 
-// تعديل دالة sendMessage
+// // تعديل دالة sendMessage
   Future<void> sendMessage(String chatId, String message, bool isText) async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -288,12 +292,164 @@ class ChatViewModel extends ChangeNotifier {
 
       messageController.clear();
       notifyListeners();
-      _scrollToBottom();
+      scrollToBottom();
     } catch (e) {
       _errorMessage = 'Failed to send message: $e';
       notifyListeners();
     }
   }
+
+//   Future<void> sendMessage(String chatId, String text, bool isText) async {
+//   if (text.trim().isEmpty) return;
+
+//   final messageData = {
+//     'messageId': const Uuid().v4(),
+//     'text': text,
+//     'senderId': FirebaseAuth.instance.currentUser?.uid,
+//     'time': DateTime.now().toIso8601String(),
+//     'isRead': false,
+//     'isImage': !isText,
+//     'isDocument': false,
+//     'fileName': null,
+//   };
+
+//   try {
+//     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+//     if (currentUserId == null) {
+//       _errorMessage = 'لا يوجد مستخدم مسجل الدخول';
+//       notifyListeners();
+//       return;
+//     }
+
+//     // التحقق من وجود مستند الدردشة
+//     final chatDocRef =
+//         FirebaseFirestore.instance.collection('users_chats').doc(chatId);
+//     final chatDoc = await chatDocRef.get();
+
+//     String recipientId = '';
+//     if (!chatDoc.exists) {
+//       // جلب recipientId من ChatModel
+//       final chatIndex = _chats.indexWhere((chat) => chat.id == chatId);
+//       if (chatIndex == -1) {
+//         throw Exception('الدردشة غير موجودة في القائمة المحلية');
+//       }
+//       final participants = _chats[chatIndex].participants;
+//       recipientId = participants.firstWhere(
+//         (id) => id != currentUserId,
+//         orElse: () => '',
+//       );
+//       if (recipientId.isEmpty) {
+//         throw Exception('لم يتم العثور على معرف المستلم');
+//       }
+
+//       // إنشاء مستند الدردشة إذا لم يكن موجودًا
+//       final currentUserDoc = await FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(currentUserId)
+//           .get();
+//       final recipientDoc = await FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(recipientId)
+//           .get();
+
+//       if (!currentUserDoc.exists || !recipientDoc.exists) {
+//         throw Exception('بيانات المستخدم أو المستلم غير موجودة');
+//       }
+
+//       await chatDocRef.set({
+//         'participants': [currentUserId, recipientId],
+//         'names': {
+//           currentUserId: currentUserDoc.data()?['name'] ?? 'Unknown',
+//           recipientId: recipientDoc.data()?['name'] ?? 'Unknown',
+//         },
+//         'avatars': {
+//           currentUserId: currentUserDoc.data()?['avatar'] ?? '',
+//           recipientId: recipientDoc.data()?['avatar'] ?? '',
+//         },
+//         'lastMessage': '',
+//         'timestamp': FieldValue.serverTimestamp(),
+//         'messages': [],
+//         'unreadCounts': {currentUserId: 0, recipientId: 0},
+//         'hasCheckmark': false,
+//       }, SetOptions(merge: true));
+//     } else {
+//       // إذا كان المستند موجودًا، جلب recipientId من المستند
+//       final participants = chatDoc['participants'] as List<dynamic>? ?? [];
+//       recipientId = participants.firstWhere(
+//         (id) => id != currentUserId,
+//         orElse: () => '',
+//       );
+//       if (recipientId.isEmpty) {
+//         throw Exception('لم يتم العثور على معرف المستلم في مستند الدردشة');
+//       }
+//     }
+
+//     // إضافة الرسالة محليًا
+//     _localMessages.add({...messageData, 'isMe': true});
+//     notifyListeners();
+
+//     // إرسال الرسالة إلى Firestore
+//     await _chatRepository.sendMessage(chatId, messageData);
+
+//     // تحديث بيانات الدردشة
+//     await chatDocRef.update({
+//       'lastMessage': text,
+//       'timestamp': FieldValue.serverTimestamp(),
+//       'unreadCounts.$currentUserId': 0,
+//       'unreadCounts.$recipientId': FieldValue.increment(1),
+//     });
+
+//     // استرجاع رمز FCM للمستلم وإرسال الإشعار
+//     final recipientDoc = await FirebaseFirestore.instance
+//         .collection('users')
+//         .doc(recipientId)
+//         .get();
+//     if (!recipientDoc.exists || recipientDoc.data() == null) {
+//       log('لم يتم العثور على مستند المستلم للمعرف: $recipientId, chatId: $chatId');
+//       return;
+//     }
+//     final recipientFcmToken = recipientDoc.data()!['fcmToken'] as String?;
+
+//     // استرجاع اسم المرسل
+//     final senderDoc = await FirebaseFirestore.instance
+//         .collection('users')
+//         .doc(currentUserId)
+//         .get();
+//     if (!senderDoc.exists || senderDoc.data() == null) {
+//       log('لم يتم العثور على مستند المرسل للمعرف: $currentUserId, chatId: $chatId');
+//       return;
+//     }
+//     final senderName = senderDoc.data()!['name'] as String? ?? 'غير معروف';
+
+//     if (recipientFcmToken != null && recipientFcmToken.isNotEmpty) {
+//       // إرسال الإشعار
+//       await sendNotification(
+//         token: recipientFcmToken,
+//         title: 'رسالة جديدة من $senderName',
+//         body: text,
+//         data: {
+//           'route': '/chat',
+//           'chatId': chatId,
+//         },
+//       );
+//     } else {
+//       log('لم يتم العثور على رمز FCM للمستلم: $recipientId, chatId: $chatId');
+//     }
+
+//     messageController.clear();
+//     scrollToBottom();
+//   } catch (e) {
+//     _localMessages
+//         .removeWhere((msg) => msg['messageId'] == messageData['messageId']);
+//     _errorMessage = 'فشل إرسال الرسالة: $e';
+//     notifyListeners();
+//   }
+// }
+
+  // void clearErrorMessage() {
+  //   _errorMessage = null;
+  //   notifyListeners();
+  // }
 
   // تحديث دالة sendImage (اختياري لو عايز تعمم)
   Future<void> sendImage(
@@ -336,7 +492,7 @@ class ChatViewModel extends ChangeNotifier {
       });
 
       notifyListeners();
-      _scrollToBottom();
+      scrollToBottom();
     } catch (e) {
       _errorMessage = 'Failed to send image: $e';
       notifyListeners();
@@ -386,7 +542,7 @@ class ChatViewModel extends ChangeNotifier {
       });
 
       notifyListeners();
-      _scrollToBottom();
+      scrollToBottom();
     } catch (e) {
       _errorMessage = 'Failed to send document: $e';
       notifyListeners();
@@ -394,6 +550,92 @@ class ChatViewModel extends ChangeNotifier {
       onUploadingDocument(false);
     }
   }
+
+  // Future<void> sendDocument(
+  //     String chatId, File documentFile, Function(bool) onUploadingImage) async {
+  //   try {
+  //     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+  //     if (currentUserId == null) {
+  //       _errorMessage = 'No user logged in';
+  //       notifyListeners();
+  //       return;
+  //     }
+
+  //     final fileName = documentFile.path.split('/').last;
+  //     final storageRef = FirebaseStorage.instance
+  //         .ref()
+  //         .child('chat_documents')
+  //         .child('$chatId/$fileName');
+  //     await storageRef.putFile(documentFile);
+  //     final downloadUrl = await storageRef.getDownloadURL();
+
+  //     final messageId = const Uuid().v4();
+  //     final messageData = {
+  //       'messageId': messageId,
+  //       'text': downloadUrl,
+  //       'senderId': currentUserId,
+  //       'time': DateTime.now().toIso8601String(),
+  //       'isRead': false,
+  //       'isImage': false,
+  //       'isDocument': true,
+  //       'fileName': fileName,
+  //     };
+
+  //     _localMessages.add(messageData);
+  //     notifyListeners();
+
+  //     await _chatRepository.sendMessage(chatId, messageData);
+
+  //     await FirebaseFirestore.instance
+  //         .collection('users_chats')
+  //         .doc(chatId)
+  //         .update({
+  //       'lastMessage': fileName,
+  //       'timestamp': FieldValue.serverTimestamp(),
+  //     });
+
+  //     // إرسال إشعار للمستلم
+  //     final chatDoc = await FirebaseFirestore.instance
+  //         .collection('users_chats')
+  //         .doc(chatId)
+  //         .get();
+  //     final participants = chatDoc['participants'] as List<dynamic>;
+  //     final recipientId = participants.firstWhere((id) => id != currentUserId,
+  //         orElse: () => '');
+
+  //     if (recipientId.isNotEmpty) {
+  //       final recipientDoc = await FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(recipientId)
+  //           .get();
+  //       final recipientFcmToken = recipientDoc.data()?['fcmToken'] as String?;
+  //       final senderDoc = await FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(currentUserId)
+  //           .get();
+  //       final senderName = senderDoc.data()?['name'] ?? 'Unknown';
+
+  //       if (recipientFcmToken != null) {
+  //         await sendNotification(
+  //           token: recipientFcmToken,
+  //           title: 'New Document from $senderName',
+  //           body: 'You received a document: $fileName',
+  //           data: {
+  //             'route': '/chat',
+  //             'chatId': chatId,
+  //           },
+  //         );
+  //       } else {
+  //         log('No FCM token found for recipient: $recipientId');
+  //       }
+  //     }
+  //   } catch (e) {
+  //     _errorMessage = 'Failed to send document: $e';
+  //     notifyListeners();
+  //   } finally {
+  //     onUploadingImage(false);
+  //   }
+  // }
 
   Future<void> deleteMessage(String chatId, String messageId) async {
     try {
@@ -449,7 +691,7 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
-  void _scrollToBottom() {
+  void scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (scrollController.hasClients) {
         scrollController.animateTo(

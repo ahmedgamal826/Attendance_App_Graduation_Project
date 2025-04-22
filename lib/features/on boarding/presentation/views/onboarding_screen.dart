@@ -77,28 +77,30 @@ class _OnboardScreenState extends State<OnboardScreen> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: Column(
-          children: [
-            ImageSection(
-              image: images[index],
-              isOut: isOut,
-            ),
-            TitleSection(
-              title: titles[index],
-              isOut: isOut,
-            ),
-            DescriptionSection(
-              description: descriptions[index],
-              isOut: isOut,
-            ),
-            buildIndicators(),
-            ActionButtons(
-              index: index,
-              isOut: isOut,
-              onNext: _nextPage,
-              onBack: _backPage,
-            ),
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              ImageSection(
+                image: images[index],
+                isOut: isOut,
+              ),
+              TitleSection(
+                title: titles[index],
+                isOut: isOut,
+              ),
+              DescriptionSection(
+                description: descriptions[index],
+                isOut: isOut,
+              ),
+              buildIndicators(),
+              ActionButtons(
+                index: index,
+                isOut: isOut,
+                onNext: _nextPage,
+                onBack: _backPage,
+              ),
+            ],
+          ),
         ),
       ),
     );
