@@ -1,6 +1,7 @@
 // attendance/presentation/views/attendance_view_admin.dart
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/attendance/presentation/views/widgets/add_lecture_screen_admin.dart';
+import 'package:attendance_app/features/schedule_open_camera/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../cubits/cubit_admin/lecture_cubit.dart';
@@ -37,7 +38,8 @@ class AttendanceScreenAdmin extends StatelessWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AddLectureScreen()),
+              // MaterialPageRoute(builder: (context) => const AddLectureScreen()),
+              MaterialPageRoute(builder: (context) => const ScheduleScreen()),
             );
           },
           backgroundColor: AppColors.primaryColor,
