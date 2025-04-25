@@ -5,13 +5,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../cubits/cubit_admin/material_cubit.dart';
 
 class MaterialsAdminScreen extends StatelessWidget {
-  const MaterialsAdminScreen({Key? key}) : super(key: key);
+  final String courseId;
+  final int lectureNumber;
+
+  const MaterialsAdminScreen({
+    Key? key,
+    required this.courseId,
+    required this.lectureNumber,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Предоставление кубита для всего дерева виджетов
     return BlocProvider(
-      create: (_) => MaterialCubit(),
+      create: (_) =>
+          MaterialCubit(courseId: courseId, lectureNumber: lectureNumber),
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -31,28 +38,32 @@ class MaterialsAdminScreen extends StatelessWidget {
           child: const MaterialsAdminBodyView(),
         ),
         floatingActionButton: Builder(builder: (context) {
+          final materialCubit =
+              context.read<MaterialCubit>(); // احصل على الـ Cubit
           return FloatingActionButton(
             onPressed: () {
-              // Добавить новый материал
-              _addNewFile(context);
+              _addNewFile(context, materialCubit);
             },
             backgroundColor: const Color(0xFF1565C0),
-            child: const Icon(Icons.add, color: Colors.white),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: Colors.white, width: 1),
             ),
+            child: const Icon(Icons.add, color: Colors.white),
           );
         }),
       ),
     );
   }
 
-  // Переход на экран загрузки файла
-  void _addNewFile(BuildContext context) {
+  void _addNewFile(BuildContext context, MaterialCubit materialCubit) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const FileUploadScreenAdmin()),
+      MaterialPageRoute(
+        builder: (context) => BlocProvider.value(
+          value: materialCubit, // مرر الـ Cubit مباشرة
+          child: const FileUploadScreenAdmin(),
+        ),
+      ),
     );
   }
 }

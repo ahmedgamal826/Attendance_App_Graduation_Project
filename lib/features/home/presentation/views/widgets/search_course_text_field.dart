@@ -1,17 +1,15 @@
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 
-class SubjectTextField extends StatelessWidget {
-  const SubjectTextField({
-    super.key,
-    required this.controller,
-    required this.labelText,
-    this.keyboardType,
-  });
-
+class SearchCourseTextField extends StatelessWidget {
   final TextEditingController controller;
-  final String labelText;
-  final TextInputType? keyboardType;
+  final void Function(String)? onChanged;
+
+  const SearchCourseTextField({
+    Key? key,
+    required this.controller,
+    this.onChanged,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,28 +22,31 @@ class SubjectTextField extends StatelessWidget {
             color: Colors.grey.withOpacity(0.3),
             blurRadius: 6,
             offset: const Offset(0, 3),
-          )
+          ),
         ],
       ),
       child: TextField(
-        controller: controller,
         cursorColor: AppColors.primaryColor,
+        controller: controller,
+        onChanged: onChanged,
         decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle: const TextStyle(color: Colors.black),
+          hintText: "Search for courses...",
+          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+          border: InputBorder.none,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Colors.grey, width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide:
-                const BorderSide(color: AppColors.primaryColor, width: 2),
+            borderSide: const BorderSide(
+              color: AppColors.primaryColor,
+              width: 2,
+            ),
           ),
           contentPadding:
               const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
         ),
-        keyboardType: keyboardType,
       ),
     );
   }

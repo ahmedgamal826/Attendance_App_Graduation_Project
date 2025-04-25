@@ -1,41 +1,6 @@
-// import 'package:attendance_app/features/auth/features/views/login_screen.dart';
-// import 'package:attendance_app/features/auth/features/views/register_screen.dart';
-// import 'package:attendance_app/features/home/presentation/views/home_view.dart';
-// import 'package:attendance_app/features/splash/presentation/views/splash_view.dart';
-// import 'package:attendance_app/firebase_options.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:flutter/material.dart';
-
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await Firebase.initializeApp(
-//     options: DefaultFirebaseOptions.currentPlatform,
-//   );
-//   runApp(AttendanceApp());
-// }
-
-// class AttendanceApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       title: 'Attendance App',
-//       routes: {
-//         '/': (context) => const SplashView(),
-//         'registerScreen': (context) => const RegisterScreen(),
-//         'loginScreen': (context) => const LoginScreen(
-//               isAdmin: true,
-//             ),
-//         'homeScreen': (context) => const HomeView(),
-//       },
-//     );
-//   }
-// }
-
 import 'package:attendance_app/app_home.dart';
 import 'package:attendance_app/core/provider/chat_provider.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
-import 'package:attendance_app/features/attendance/cubits/cubit_admin/lecture_cubit.dart';
 import 'package:attendance_app/features/auth/presentations/views/login_screen.dart';
 import 'package:attendance_app/features/auth/presentations/views/add_user_screen.dart';
 import 'package:attendance_app/features/chat_gpt/data/services/sound_services.dart';
@@ -52,7 +17,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -87,7 +51,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => HomeQuestionnairesViewModel()),
         ChangeNotifierProvider(create: (_) => ChatViewModel(ChatRepository())),
         // Cubits
-        BlocProvider(create: (_) => LectureCubit()),
+        // BlocProvider(create: (_) => LectureCubit()),
       ],
       child: AttendanceApp(),
     ),

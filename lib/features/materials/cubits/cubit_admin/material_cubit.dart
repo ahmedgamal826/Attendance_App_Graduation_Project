@@ -1,109 +1,153 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:mime/mime.dart';
 import '../../models/material_model_admin.dart';
 import 'material_state1.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:flutter/material.dart';
 
 class MaterialCubit extends Cubit<MaterialState1> {
-  MaterialCubit() : super(MaterialState1(files: getInitialFiles()));
+  final String courseId;
+  final int lectureNumber;
 
-  // Создание исходных файлов для демонстрации
-  static List<MaterialFile> getInitialFiles() {
-    return [
-      MaterialFile(name: "File 1", size: "1.2 MB"),
-      MaterialFile(name: "File 2", size: "3.4 MB"),
-      MaterialFile(name: "File 3", size: "0.8 MB"),
-      MaterialFile(name: "File 4", size: "2.5 MB"),
-      MaterialFile(name: "File 5", size: "1.7 MB"),
-    ];
+  MaterialCubit({required this.courseId, required this.lectureNumber})
+      : super(MaterialState1(files: [])) {
+    loadMaterials();
   }
 
-  // Удаление файла по индексу
-  void deleteFile(int index) {
-    final updatedFiles = List<MaterialFile>.from(state.files);
-    updatedFiles.removeAt(index);
-    emit(state.copyWith(files: updatedFiles));
+  // تحميل الملفات من Firestore
+  void loadMaterials() async {
+    // نبدأ التحميل ونعمل set لـ isLoading على true
+    emit(state.copyWith(files: [], isLoading: true));
+
+    try {
+      DocumentReference courseRef =
+          FirebaseFirestore.instance.collection('Courses').doc(courseId);
+      QuerySnapshot lectureSnapshot = await courseRef
+          .collection('lectures')
+          .where('lectureNumber', isEqualTo: lectureNumber)
+          .get();
+
+      List<MaterialFile> materials = [];
+
+      if (lectureSnapshot.docs.isEmpty) {
+        emit(state.copyWith(files: materials, isLoading: false));
+        return;
+      }
+
+      QuerySnapshot materialsSnapshot = await lectureSnapshot
+          .docs.first.reference
+          .collection('materials')
+          .orderBy('created_at', descending: true)
+          .get();
+
+      for (var doc in materialsSnapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        materials.add(MaterialFile(
+          name: data['name'] ?? 'Unknown',
+          size: data['size'] ?? 'Unknown',
+          url: data['url'],
+        ));
+      }
+
+      // خلّصنا تحميل، نعمل set لـ isLoading على false
+      emit(state.copyWith(files: materials, isLoading: false));
+    } catch (e) {
+      print('Error loading materials: $e');
+      emit(state.copyWith(files: [], isLoading: false));
+    }
   }
 
-  // Добавление нового файла
-  void addFile(MaterialFile file) {
-    final updatedFiles = List<MaterialFile>.from(state.files)..add(file);
-    emit(state.copyWith(files: updatedFiles));
+  // إضافة ملف جديد
+  void addFile(MaterialFile file) async {
+    try {
+      DocumentReference courseRef =
+          FirebaseFirestore.instance.collection('Courses').doc(courseId);
+      QuerySnapshot lectureSnapshot = await courseRef
+          .collection('lectures')
+          .where('lectureNumber', isEqualTo: lectureNumber)
+          .get();
+
+      if (lectureSnapshot.docs.isNotEmpty) {
+        var lectureDoc = lectureSnapshot.docs.first;
+        await lectureDoc.reference.collection('materials').add({
+          'name': file.name,
+          'size': file.size,
+          'url': file.url,
+          'created_at': Timestamp.now(),
+        });
+      } else {
+        throw Exception('Lecture not found');
+      }
+
+      loadMaterials();
+    } catch (e) {
+      print('Error adding material: $e');
+    }
   }
 
-  // Функция для обмена файлом
-  void shareFile(BuildContext context, String fileName) {
-    // Использование пакета share_plus для обмена
-    Share.share('Check out this file: $fileName', subject: 'Sharing $fileName');
+  // حذف ملف
+  void deleteFile(int index) async {
+    try {
+      DocumentReference courseRef =
+          FirebaseFirestore.instance.collection('Courses').doc(courseId);
+      QuerySnapshot lectureSnapshot = await courseRef
+          .collection('lectures')
+          .where('lectureNumber', isEqualTo: lectureNumber)
+          .get();
 
-    // Показать подтверждение
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Sharing $fileName'),
-        backgroundColor: Color(0xFF1565C0),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
+      if (lectureSnapshot.docs.isNotEmpty) {
+        var lectureDoc = lectureSnapshot.docs.first;
+        QuerySnapshot materialsSnapshot = await lectureDoc.reference
+            .collection('materials')
+            .orderBy('created_at', descending: true)
+            .get();
+
+        if (index < materialsSnapshot.docs.length) {
+          await materialsSnapshot.docs[index].reference.delete();
+          loadMaterials();
+        }
+      }
+    } catch (e) {
+      print('Error deleting material: $e');
+    }
   }
 
-  // Показать диалог подтверждения удаления
-  void showDeleteConfirmation(BuildContext context, String fileName, int index) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            'Confirm Delete',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF0D47A1),
-            ),
-          ),
-          content: Text(
-            'Are you sure you want to delete "$fileName"?',
-            textAlign: TextAlign.center,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: Color(0xFF1976D2)),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                // Удалить файл через cubit
-                deleteFile(index);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('$fileName deleted'),
-                    backgroundColor: Color(0xFF1565C0),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
-                Navigator.of(dialogContext).pop();
-              },
-              child: Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
+  // مشاركة ملف
+  Future<String?> shareFile(String fileName, String? fileUrl) async {
+    if (fileUrl == null || fileUrl.isEmpty) {
+      return 'File URL is null or empty. Cannot share the file.';
+    }
+
+    try {
+      final response = await http.get(Uri.parse(fileUrl));
+      if (response.statusCode != 200) {
+        return 'Failed to download file: HTTP ${response.statusCode}';
+      }
+
+      final tempDir = await getTemporaryDirectory();
+      final filePath = '${tempDir.path}/$fileName';
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+
+      if (await file.exists()) {
+        final mimeType = lookupMimeType(fileName) ?? 'application/octet-stream';
+        final xFile = XFile(filePath, mimeType: mimeType);
+        await Share.shareXFiles(
+          [xFile],
+          subject: 'Sharing $fileName',
         );
-      },
-    );
+
+        await file.delete();
+        return null;
+      } else {
+        return 'Failed to save file to device.';
+      }
+    } catch (e) {
+      print('Error sharing file: $e');
+      return 'Error sharing file: $e';
+    }
   }
 }

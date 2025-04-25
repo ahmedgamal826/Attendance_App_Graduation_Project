@@ -1,7 +1,7 @@
 import 'package:attendance_app/core/widgets/subject_screen.dart';
 import 'package:attendance_app/features/home/presentation/manager/provider/dark_mode_provider.dart';
 import 'package:attendance_app/features/home/presentation/views/widgets/subjects_list.dart';
-import 'package:attendance_app/features/schedule_open_camera/schedule_screen.dart';
+import 'package:attendance_app/features/attendance/presentation/views/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/home/presentation/views/widgets/student_drawer.dart';
@@ -113,12 +113,12 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SubjectScreen(),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const SubjectScreen(),
+                      //   ),
+                      // );
                     },
                     child: LayoutBuilder(
                       builder: (context, constraints) {
