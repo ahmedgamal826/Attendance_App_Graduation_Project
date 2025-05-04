@@ -1,96 +1,144 @@
-// // lib/presentation/views/attendance_view_student_body.dart
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:attendance_app/core/utils/app_colors.dart';
+import 'package:attendance_app/features/attendance/cubits/cubit_student/lecture_cubit.dart';
+import 'package:attendance_app/features/attendance/cubits/cubit_student/lecture_state.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'lecture_item_student.dart';
 
-// import '../../../cubits/cubit_student/lecture_cubit.dart';
-// import '../../../cubits/cubit_student/lecture_state.dart';
-// import 'attendance_statistics_student.dart';
-// import 'lecture_item_student.dart';
-// // import '../../cubits/cubit_student/lecture_cubit.dart';
-// // import '../../cubits/cubit_student/lecture_state.dart';
-// // import '../widgets/attendance_statistics.dart';
-// // import '../widgets/lecture_item.dart';
+class AttendanceScreenBodyView extends StatefulWidget {
+  final String courseId;
 
-// class AttendanceScreenBodyView extends StatefulWidget {
-//   const AttendanceScreenBodyView({Key? key}) : super(key: key);
+  const AttendanceScreenBodyView({
+    Key? key,
+    required this.courseId,
+  }) : super(key: key);
 
-//   @override
-//   State<AttendanceScreenBodyView> createState() => _AttendanceScreenBodyViewState();
-// }
+  @override
+  State<AttendanceScreenBodyView> createState() =>
+      _AttendanceScreenBodyViewState();
+}
 
-// class _AttendanceScreenBodyViewState extends State<AttendanceScreenBodyView> {
-//   final TextEditingController _searchController = TextEditingController();
+class _AttendanceScreenBodyViewState extends State<AttendanceScreenBodyView> {
+  final TextEditingController _searchController = TextEditingController();
+  late StudentLectureCubit _studentLectureCubit;
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     _searchController.addListener(_onSearchChanged);
-//   }
+  @override
+  void initState() {
+    super.initState();
+    _studentLectureCubit = StudentLectureCubit(courseId: widget.courseId);
+    _searchController.addListener(_onSearchChanged);
+  }
 
-//   @override
-//   void dispose() {
-//     _searchController.removeListener(_onSearchChanged);
-//     _searchController.dispose();
-//     super.dispose();
-//   }
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    _studentLectureCubit.close(); // Close the cubit to avoid memory leaks
+    super.dispose();
+  }
 
-//   void _onSearchChanged() {
-//     context.read<LectureCubit>().searchLectures(_searchController.text);
-//   }
+  void _onSearchChanged() {
+    _studentLectureCubit.searchLectures(_searchController.text);
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Column(
-//         children: [
-//           // Search Bar
-//           Container(
-//             decoration: BoxDecoration(
-//               color: Colors.white,
-//               borderRadius: BorderRadius.circular(12),
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: Colors.black.withOpacity(0.05),
-//                   blurRadius: 4,
-//                   offset: const Offset(0, 2),
-//                 ),
-//               ],
-//             ),
-//             child: TextField(
-//               controller: _searchController,
-//               decoration: InputDecoration(
-//                 hintText: 'Search lectures...',
-//                 prefixIcon: Icon(Icons.search, color: Colors.blue[600]),
-//                 border: InputBorder.none,
-//                 contentPadding: const EdgeInsets.symmetric(vertical: 15),
-//               ),
-//             ),
-//           ),
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => _studentLectureCubit,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Search Bar
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: TextField(
+                cursorColor: AppColors.primaryColor,
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search lectures...',
+                  prefixIcon: Icon(Icons.search, color: Colors.blue[600]),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            _studentLectureCubit.searchLectures('');
+                          },
+                        )
+                      : null,
+                ),
+              ),
+            ),
 
-//           const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-//           // Attendance Statistics
-//           const AttendanceStatistics(),
+            // Lectures List
+            Expanded(
+              child: BlocBuilder<StudentLectureCubit, StudentLectureState>(
+                builder: (context, state) {
+                  if (state.status == StudentLectureStatus.loading) {
+                    return const Center(
+                        child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ));
+                  }
+                  if (state.status == StudentLectureStatus.failure) {
+                    return Center(
+                      child: Text(
+                        state.errorMessage ?? 'Failed to load lectures',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+                  if (state.filteredLectures.isEmpty) {
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.event_busy,
+                            size: 60,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'No lectures found',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
 
-//           const SizedBox(height: 20),
-
-//           // Lectures List
-//           Expanded(
-//             child: BlocBuilder<LectureCubit, LectureState>(
-//               builder: (context, state) {
-//                 final lectures = state.filteredLectures;
-//                 return ListView.builder(
-//                   itemCount: lectures.length,
-//                   itemBuilder: (context, index) {
-//                     return LectureItem(lecture: lectures[index]);
-//                   },
-//                 );
-//               },
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+                  final lectures = state.filteredLectures;
+                  return ListView.builder(
+                    itemCount: lectures.length,
+                    itemBuilder: (context, index) {
+                      return LectureItemStudent(lecture: lectures[index]);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

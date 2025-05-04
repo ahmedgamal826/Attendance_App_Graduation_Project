@@ -1,18 +1,23 @@
 import 'package:attendance_app/core/utils/app_colors.dart';
+import 'package:attendance_app/features/questionnaire/data/models/question_model.dart';
 import 'package:attendance_app/features/questionnaire/presentation/viewmodels/student_questionnaire_viewmode.dart';
 import 'package:attendance_app/features/questionnaire/presentation/views/widgets/question_card.dart';
 import 'package:attendance_app/features/questionnaire/presentation/views/widgets/question_content.dart';
 import 'package:attendance_app/features/questionnaire/presentation/views/widgets/submit_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class StudentQuestionnaireView extends StatelessWidget {
   final String questionnaireId;
+  final String courseId;
   final VoidCallback onSubmit;
 
   const StudentQuestionnaireView({
     Key? key,
     required this.questionnaireId,
+    required this.courseId,
     required this.onSubmit,
   }) : super(key: key);
 
@@ -21,6 +26,22 @@ class StudentQuestionnaireView extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) {
         final viewModel = StudentQuestionnaireViewmodel();
+        FirebaseFirestore.instance
+            .collection('Courses')
+            .doc(courseId)
+            .collection('questionnaires')
+            .doc(questionnaireId)
+            .get()
+            .then((doc) {
+          if (doc.exists) {
+            final data = doc.data() as Map<String, dynamic>;
+            final questions = (data['questions'] as List)
+                .map((q) => QuestionModel.fromMap(q))
+                .toList();
+            viewModel
+                .initializeQuestions(questions.map((q) => q.toMap()).toList());
+          }
+        });
         return viewModel;
       },
       child: Consumer<StudentQuestionnaireViewmodel>(
@@ -67,7 +88,44 @@ class StudentQuestionnaireView extends StatelessWidget {
                 SubmitButton(
                   viewModel: viewModel,
                   allQuestionsAnswered: allQuestionsAnswered,
-                  onSubmit: onSubmit,
+                  onSubmit: () {
+                    onSubmit();
+                    final user = FirebaseAuth.instance.currentUser;
+                    if (user != null) {
+                      FirebaseFirestore.instance
+                          .collection('Courses')
+                          .doc(courseId)
+                          .collection('questionnaires')
+                          .doc(questionnaireId)
+                          .collection('filledBy')
+                          .doc(user.uid)
+                          .set({
+                        'uid': user.uid,
+                        'timestamp': FieldValue.serverTimestamp(),
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Row(
+                            children: [
+                              Icon(Icons.check_circle, color: Colors.green),
+                              SizedBox(width: 10),
+                              Text(
+                                'Answers submitted successfully!',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                          backgroundColor: AppColors.primaryColor,
+                          duration: const Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      );
+                    }
+                    Navigator.pop(context);
+                  },
                 ),
                 if (!allQuestionsAnswered && viewModel.questions.isNotEmpty)
                   const Padding(

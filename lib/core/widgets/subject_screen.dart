@@ -503,6 +503,8 @@
 //   }
 // }
 
+import 'package:attendance_app/features/questionnaire/presentation/views/home_questionnaires_view.dart';
+import 'package:attendance_app/features/questionnaire/presentation/views/student_home_questionnaires_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -614,11 +616,10 @@ class _SubjectScreenState extends State<SubjectScreen>
                 courseId: widget.courseId,
                 courseName: widget.courseName,
               )
-            : AttendanceScreenAdmin(
+            : AttendanceScreenStudent(
                 courseId: widget.courseId,
                 courseName: widget.courseName,
               );
-        //  : const AttendanceScreenStudent();
         break;
       case 'Materials':
         destination = role == 'Admin'
@@ -626,7 +627,10 @@ class _SubjectScreenState extends State<SubjectScreen>
                 courseId: widget.courseId,
                 lectureNumber: selectedLectureNumber,
               )
-            : const MaterialsStudentScreen();
+            : MaterialsStudentScreen(
+                courseId: widget.courseId,
+                lectureNumber: selectedLectureNumber,
+              );
         break;
       case 'Assignments':
         destination = role == 'Admin'
@@ -637,6 +641,15 @@ class _SubjectScreenState extends State<SubjectScreen>
         destination =
             role == 'Admin' ? const TestPageAdmin() : const TestPageStudent();
         break;
+
+      case 'Questionnaires':
+        destination = role == 'Admin'
+            ? HomeQuestionnairesView(courseId: widget.courseId)
+            : StudentHomeQuestionnairesView(
+                courseId: widget.courseId,
+              );
+        break;
+
       default:
         return;
     }
@@ -701,6 +714,11 @@ class _SubjectScreenState extends State<SubjectScreen>
                         context,
                         'Test',
                         () => navigateBasedOnRole(context, 'Test'),
+                      ),
+                      _buildRoundedButton(
+                        context,
+                        'Questionnaires',
+                        () => navigateBasedOnRole(context, 'Questionnaires'),
                       ),
                     ],
                   ),

@@ -1,19 +1,21 @@
-import 'package:attendance_app/features/materials/cubits/cubit_student/material_state1.dart';
+import 'package:attendance_app/features/materials/cubits/cubit_student/student_material_cubit.dart';
+import 'package:attendance_app/features/materials/cubits/cubit_student/student_material_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// import '../../cubits/material_cubit.dart';
-// import '../../cubits/material_state1.dart';
-import '../../../cubits/cubit_student/material_cubit.dart';
 import '../widgets/material_item_student.dart';
 
-class MaterialsStudentView extends StatelessWidget {
-  const MaterialsStudentView({Key? key}) : super(key: key);
+class MaterialsStudentBodyView extends StatelessWidget {
+  final String courseId;
+  final int lectureNumber;
+
+  const MaterialsStudentBodyView({
+    Key? key,
+    required this.courseId,
+    required this.lectureNumber,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final materialCubit = context.read<MaterialCubit>();
-    final materials = materialCubit.getMaterials();
-
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
@@ -33,7 +35,7 @@ class MaterialsStudentView extends StatelessWidget {
       ),
       body: Container(
         color: const Color(0xFFE3F2FD),
-        child: BlocConsumer<MaterialCubit, MaterialState1>(
+        child: BlocConsumer<StudentMaterialCubit, StudentMaterialState>(
           listener: (context, state) {
             if (state is MaterialError) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -58,7 +60,31 @@ class MaterialsStudentView extends StatelessWidget {
                   color: Color(0xFF1565C0),
                 ),
               );
-            } else {
+            } else if (state is MaterialLoaded) {
+              final materials = state.materials;
+              if (materials.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.insert_drive_file_outlined,
+                        size: 60,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No materials available',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
               return ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: materials.length,
@@ -66,7 +92,20 @@ class MaterialsStudentView extends StatelessWidget {
                   return MaterialItemStudent(material: materials[index]);
                 },
               );
+            } else if (state is MaterialError) {
+              return Center(
+                child: Text(
+                  state.message,
+                  style: const TextStyle(fontSize: 18, color: Colors.red),
+                ),
+              );
             }
+            return const Center(
+              child: Text(
+                'No materials available',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            );
           },
         ),
       ),

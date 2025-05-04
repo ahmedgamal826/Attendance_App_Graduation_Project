@@ -264,8 +264,7 @@ import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/chats/presentation/views/home_chats__view.dart';
 import 'package:attendance_app/features/home/presentation/manager/provider/dark_mode_provider.dart';
 import 'package:attendance_app/features/home/presentation/views/home_screen.dart';
-import 'package:attendance_app/features/questionnaire/presentation/views/admin_home_questionnaires.dart';
-import 'package:attendance_app/features/questionnaire/presentation/views/student_home_questionnaires_view.dart';
+import 'package:attendance_app/features/profile/presentations/views/user_profile_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -343,9 +342,7 @@ class _AppHomeState extends State<AppHome> {
         children: [
           const HomeChatsView(),
           const HomeScreen(),
-          isAdminUser
-              ? const HomeQuestionnairesView()
-              : const StudentHomeQuestionnairesView(),
+          isAdminUser ? const UserProfileView() : const UserProfileView(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -354,7 +351,7 @@ class _AppHomeState extends State<AppHome> {
         items: [
           _buildNavItem(Icons.chat, "Chats", 0),
           _buildNavItem(Icons.home, "Home", 1),
-          _buildNavItem(Icons.question_answer, "Questionnaire", 2),
+          _buildNavItem(Icons.person, "Profile", 2),
         ],
         currentIndex: selectedIndex,
         selectedItemColor: isDarkMode ? Colors.white : AppColors.primaryColor,

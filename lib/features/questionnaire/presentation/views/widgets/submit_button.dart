@@ -23,12 +23,6 @@ class SubmitButton extends StatelessWidget {
             ? null
             : () {
                 onSubmit();
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Answers submitted successfully!'),
-                  ),
-                );
                 Navigator.pop(context);
               },
         style: ElevatedButton.styleFrom(

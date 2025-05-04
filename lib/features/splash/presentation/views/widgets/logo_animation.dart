@@ -58,9 +58,9 @@ class _LogoAnimationState extends State<LogoAnimation>
       child: FadeTransition(
         opacity: _fadeAnimation,
         child: Image.asset(
-          'assets/chat_bot.png',
-          width: widget.width * 0.4,
-          height: widget.height * 0.2,
+          'assets/images/splash_logo-remove.png',
+          width: widget.width * 0.5,
+          height: widget.height * 0.3,
         ),
       ),
     );

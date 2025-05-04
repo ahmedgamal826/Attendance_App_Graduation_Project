@@ -5,12 +5,14 @@ class QuestionnaireModel {
   final String date;
   final String doctor;
   final List<QuestionModel> questions;
+  final bool isCompleted;
 
   QuestionnaireModel({
     required this.name,
     required this.date,
     required this.doctor,
     required this.questions,
+    this.isCompleted = false, // Default value is false
   });
 
   Map<String, dynamic> toMap() {
@@ -19,6 +21,7 @@ class QuestionnaireModel {
       'date': date,
       'doctor': doctor,
       'questions': questions.map((q) => q.toMap()).toList(),
+      'isCompleted': isCompleted,
     };
   }
 
@@ -30,6 +33,7 @@ class QuestionnaireModel {
       questions: (map['questions'] as List<dynamic>)
           .map((q) => QuestionModel.fromMap(q as Map<String, dynamic>))
           .toList(),
+      isCompleted: map['isCompleted'] ?? false,
     );
   }
 }

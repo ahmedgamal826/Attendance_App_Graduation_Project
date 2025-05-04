@@ -9,9 +9,13 @@ import 'package:provider/provider.dart';
 
 class AdminQuestionnaireView extends StatelessWidget {
   final List<Map<String, dynamic>> initialQuestions;
+  final String courseId;
 
-  const AdminQuestionnaireView({Key? key, this.initialQuestions = const []})
-      : super(key: key);
+  const AdminQuestionnaireView({
+    Key? key,
+    this.initialQuestions = const [],
+    required this.courseId,
+  }) : super(key: key);
 
   void _showQuestionTypeDialog(
       BuildContext context, QuestionnaireViewModel viewModel) {
@@ -37,7 +41,6 @@ class AdminQuestionnaireView extends StatelessWidget {
       BuildContext context, String type, QuestionnaireViewModel viewModel) {
     return ElevatedButton(
       onPressed: () {
-        print('Opening AddQuestionScreen for $type');
         Navigator.pop(context);
         Navigator.push(
           context,
@@ -45,7 +48,6 @@ class AdminQuestionnaireView extends StatelessWidget {
             builder: (context) => AddQuestionScreen(
               questionType: type,
               onQuestionAdded: (newQuestion) {
-                print('Admin received new question: ${newQuestion.toMap()}');
                 viewModel.addQuestion(newQuestion);
               },
             ),
@@ -92,26 +94,26 @@ class AdminQuestionnaireView extends StatelessWidget {
       create: (_) {
         final viewModel = QuestionnaireViewModel();
         viewModel.initializeQuestions(initialQuestions);
-        print(
-            'New QuestionnaireViewModel created with ${initialQuestions.length} initial questions');
         return viewModel;
       },
       child: Consumer<QuestionnaireViewModel>(
         builder: (context, viewModel, child) {
-          print(
-              'Rebuilding AdminQuestionnaireView with ${viewModel.questions.length} questions');
           return Scaffold(
             appBar: AppBar(
               iconTheme: const IconThemeData(color: Colors.white),
-              title: const Text('Questionnaires',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
+              title: const Text(
+                'Questions',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               backgroundColor: AppColors.primaryColor,
               actions: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: IconButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (viewModel.questions.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -120,7 +122,6 @@ class AdminQuestionnaireView extends StatelessWidget {
                         );
                         return;
                       }
-                      print('Saving ${viewModel.questions.length} questions');
                       Navigator.pop(context,
                           viewModel.questions.map((q) => q.toMap()).toList());
                     },
@@ -145,48 +146,42 @@ class AdminQuestionnaireView extends StatelessWidget {
                       height: 80,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       color: Colors.grey.shade200,
-                      child: () {
-                        print(
-                            'Rendering ListView with ${viewModel.questions.length} items');
-                        return viewModel.questions.isEmpty
-                            ? const Center(
-                                child: Text('No questions yet',
-                                    style: TextStyle(color: Colors.grey)))
-                            : ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: viewModel.questions.length,
-                                itemBuilder: (context, index) {
-                                  print('Building card for question $index');
-                                  return QuestionCard(
-                                    role: 'Admin',
-                                    index: index,
-                                    isSelected:
-                                        viewModel.currentQuestionIndex == index,
-                                    onTap: () {
-                                      viewModel.selectQuestion(index);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              AddQuestionScreen(
-                                            questionType:
-                                                viewModel.questions[index].type,
-                                            existingQuestion:
-                                                viewModel.questions[index],
-                                            onQuestionAdded: (updatedQuestion) {
-                                              viewModel.updateQuestion(
-                                                  index, updatedQuestion);
-                                            },
-                                          ),
+                      child: viewModel.questions.isEmpty
+                          ? const Center(
+                              child: Text('No questions yet',
+                                  style: TextStyle(color: Colors.grey)))
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: viewModel.questions.length,
+                              itemBuilder: (context, index) {
+                                return QuestionCard(
+                                  role: 'Admin',
+                                  index: index,
+                                  isSelected:
+                                      viewModel.currentQuestionIndex == index,
+                                  onTap: () {
+                                    viewModel.selectQuestion(index);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AddQuestionScreen(
+                                          questionType:
+                                              viewModel.questions[index].type,
+                                          existingQuestion:
+                                              viewModel.questions[index],
+                                          onQuestionAdded: (updatedQuestion) {
+                                            viewModel.updateQuestion(
+                                                index, updatedQuestion);
+                                          },
                                         ),
-                                      );
-                                    },
-                                    onDelete: () => _showDeleteDialog(
-                                        context, index, viewModel),
-                                  );
-                                },
-                              );
-                      }(),
+                                      ),
+                                    );
+                                  },
+                                  onDelete: () => _showDeleteDialog(
+                                      context, index, viewModel),
+                                );
+                              },
+                            ),
                     ),
                   ],
                 ),
@@ -196,7 +191,6 @@ class AdminQuestionnaireView extends StatelessWidget {
                   child: FloatingActionButton(
                     heroTag: "admin_questionnaire_screen",
                     onPressed: () {
-                      print('FAB pressed');
                       _showQuestionTypeDialog(context, viewModel);
                     },
                     backgroundColor: AppColors.primaryColor,

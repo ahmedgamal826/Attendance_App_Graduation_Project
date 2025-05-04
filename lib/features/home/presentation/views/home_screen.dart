@@ -322,9 +322,10 @@ class HomeScreen extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(
-                child: CircularProgressIndicator(
-              color: AppColors.primaryColor,
-            )),
+              child: CircularProgressIndicator(
+                color: AppColors.primaryColor,
+              ),
+            ),
           );
         }
 

@@ -48,10 +48,11 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => DarkModeProvider()),
         // ChangeNotifierProvider(create: (_) => QuestionnaireViewModel()),
-        ChangeNotifierProvider(create: (_) => HomeQuestionnairesViewModel()),
+        //ChangeNotifierProvider(create: (_) => HomeQuestionnairesViewModel()),
         ChangeNotifierProvider(create: (_) => ChatViewModel(ChatRepository())),
         // Cubits
         // BlocProvider(create: (_) => LectureCubit()),
+        
       ],
       child: AttendanceApp(),
     ),

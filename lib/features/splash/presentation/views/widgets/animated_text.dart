@@ -11,7 +11,7 @@ class AnimatedText extends StatelessWidget {
     return AnimatedTextKit(
       animatedTexts: [
         TyperAnimatedText(
-          'Attendance App',
+          'Presentic',
           textStyle: const TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.bold,

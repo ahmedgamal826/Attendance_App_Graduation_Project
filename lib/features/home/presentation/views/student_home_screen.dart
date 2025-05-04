@@ -1,12 +1,12 @@
 import 'package:attendance_app/core/widgets/subject_screen.dart';
 import 'package:attendance_app/features/home/presentation/manager/provider/dark_mode_provider.dart';
-import 'package:attendance_app/features/home/presentation/views/widgets/subjects_list.dart';
-import 'package:attendance_app/features/attendance/presentation/views/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/home/presentation/views/widgets/student_drawer.dart';
 import 'package:attendance_app/features/home/presentation/views/widgets/join_team_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({Key? key}) : super(key: key);
@@ -17,22 +17,42 @@ class StudentHomeScreen extends StatefulWidget {
 
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
   TextEditingController searchController = TextEditingController();
-
-  List<Map<String, String>> filteredSubjects = [];
+  String? studentUid;
 
   @override
   void initState() {
     super.initState();
-    filteredSubjects = subjects;
+    _getStudentUid();
+    searchController.addListener(() {
+      setState(() {});
+    });
   }
 
-  void filterSubjects(String query) {
-    setState(() {
-      filteredSubjects = subjects
-          .where((subject) =>
-              subject["title"]!.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    });
+  Future<void> _getStudentUid() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      setState(() {
+        studentUid = currentUser.uid;
+      });
+
+      // Check if the student document exists, if not create it
+      DocumentSnapshot studentDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(studentUid)
+          .get();
+
+      if (!studentDoc.exists) {
+        // Create a new document for the student with an empty enrolledCourses
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(studentUid)
+            .set({
+          'enrolledCourses': [],
+          'role': 'student',
+          'email': currentUser.email,
+        });
+      }
+    }
   }
 
   @override
@@ -87,9 +107,8 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               child: TextField(
                 cursorColor: AppColors.primaryColor,
                 controller: searchController,
-                onChanged: filterSubjects,
                 decoration: InputDecoration(
-                  hintText: "Search for subjects...",
+                  hintText: "Search for courses...",
                   prefixIcon: const Icon(Icons.search, color: Colors.grey),
                   border: InputBorder.none,
                   enabledBorder: OutlineInputBorder(
@@ -108,125 +127,277 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                itemCount: filteredSubjects.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const SubjectScreen(),
-                      //   ),
-                      // );
-                    },
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        double cardHeight = constraints.maxWidth * 0.4;
-                        double fontSizeTitle = constraints.maxWidth * 0.06;
-                        double fontSizeSubtitle = constraints.maxWidth * 0.04;
+              child: studentUid == null
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
+                    ))
+                  : StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(studentUid)
+                          .snapshots(),
+                      builder: (context, userSnapshot) {
+                        if (userSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        if (userSnapshot.hasError) {
+                          return const Center(
+                              child: Text('Error fetching data'));
+                        }
+                        if (!userSnapshot.hasData ||
+                            !userSnapshot.data!.exists) {
+                          return const Center(
+                              child: Text('No student data found'));
+                        }
 
-                        return Card(
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Stack(
+                        // Safely handle the enrolledCourses field
+                        List<dynamic> enrolledCourses =
+                            userSnapshot.data!.data() != null &&
+                                    (userSnapshot.data!.data()
+                                            as Map<String, dynamic>)
+                                        .containsKey('enrolledCourses')
+                                ? userSnapshot.data!.get('enrolledCourses')
+                                : [];
+
+                        if (enrolledCourses.isEmpty) {
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // صورة الخلفية
-                                Image.asset(
-                                  "assets/images/1.jpg",
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: cardHeight,
+                                Icon(
+                                  Icons.book_outlined,
+                                  size: 60,
+                                  color: Colors.grey,
                                 ),
-
-                                Container(
-                                  height: cardHeight,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.6),
+                                SizedBox(height: 10),
+                                Text(
+                                  'No courses enrolled',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.grey,
                                   ),
                                 ),
-
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0, vertical: 12),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        width: constraints.maxWidth * 0.75,
-                                        child: Text(
-                                          filteredSubjects[index]["title"]!,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            fontSize: fontSizeTitle,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-
-                                      // السنة
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 8.0),
-                                        child: Text(
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          filteredSubjects[index]["year"]!,
-                                          style: TextStyle(
-                                            fontSize: fontSizeSubtitle,
-                                            fontWeight: FontWeight.w500,
-                                            color:
-                                                Colors.white.withOpacity(0.9),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                Positioned(
-                                  bottom: 8,
-                                  left: 12,
-                                  right: 20,
-                                  child: Text(
-                                    filteredSubjects[index]["lecturer"]!,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: fontSizeSubtitle,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white.withOpacity(0.9),
-                                    ),
-                                  ),
-                                ),
-
-                                // Positioned(
-                                //   top: 8,
-                                //   right: 8,
-                                //   child: IconButton(
-                                //     icon: const Icon(Icons.more_vert,
-                                //         color: Colors.white),
-                                //     onPressed: () {},
-                                //   ),
-                                // ),
                               ],
                             ),
-                          ),
+                          );
+                        }
+
+                        return StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('Courses')
+                              .where('courseCode', whereIn: enrolledCourses)
+                              .snapshots(),
+                          builder: (context, coursesSnapshot) {
+                            if (coursesSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
+                            if (coursesSnapshot.hasError) {
+                              return const Center(
+                                  child: Text('Error fetching courses'));
+                            }
+                            if (!coursesSnapshot.hasData ||
+                                coursesSnapshot.data!.docs.isEmpty) {
+                              return const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.book_outlined,
+                                      size: 60,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      'No courses found',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            var courses = coursesSnapshot.data!.docs;
+                            var filteredCourses = courses.where((course) {
+                              String title = course['courseName']
+                                      ?.toString()
+                                      .toLowerCase() ??
+                                  '';
+                              String query =
+                                  searchController.text.toLowerCase();
+                              return title.contains(query);
+                            }).toList();
+
+                            if (filteredCourses.isEmpty) {
+                              return const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.book_outlined,
+                                      size: 60,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      'No matching courses found',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              itemCount: filteredCourses.length,
+                              itemBuilder: (context, index) {
+                                var courseData = filteredCourses[index].data()
+                                    as Map<String, dynamic>;
+                                String courseId = filteredCourses[index].id;
+                                String courseName = courseData['courseName'] ??
+                                    'Unknown Subject';
+                                String semester =
+                                    courseData['semester'] ?? 'Unknown Year';
+                                String date =
+                                    courseData['date'] ?? 'Unknown Date';
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => SubjectScreen(
+                                          courseId: courseId,
+                                          courseName: courseName,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      double cardHeight =
+                                          constraints.maxWidth * 0.4;
+                                      double fontSizeTitle =
+                                          constraints.maxWidth * 0.06;
+                                      double fontSizeSubtitle =
+                                          constraints.maxWidth * 0.04;
+
+                                      return Card(
+                                        elevation: 5,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 8),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          child: Stack(
+                                            children: [
+                                              Image.asset(
+                                                "assets/images/1.jpg",
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                height: cardHeight,
+                                              ),
+                                              Container(
+                                                height: cardHeight,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black
+                                                      .withOpacity(0.6),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 16.0,
+                                                        vertical: 12),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width:
+                                                          constraints.maxWidth *
+                                                              0.75,
+                                                      child: Text(
+                                                        courseName,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              fontSizeTitle,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              right: 8.0),
+                                                      child: Text(
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        semester,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              fontSizeSubtitle,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: Colors.white
+                                                              .withOpacity(0.9),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Positioned(
+                                                bottom: 8,
+                                                left: 12,
+                                                right: 20,
+                                                child: Text(
+                                                  date,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: fontSizeSubtitle,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.white
+                                                        .withOpacity(0.9),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         );
                       },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),
