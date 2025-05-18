@@ -18,61 +18,61 @@ class _TestPageDetailsStudentState extends State<TestPageDetailsStudent> {
   int currentQuestionIndex = 0;
 
   // Sample questions list
-  final List<Question> questions = [
-    Question(
+  final List<AssignmentQuestion> questions = [
+    AssignmentQuestion(
       questionText: "Is Flutter developed by Google?",
-      questionType: QuestionType2.trueOrFalse,
+      questionType: AssignmentQuestionType.trueOrFalse,
       correctAnswer: 0, // True
       options: ["True", "False"],
       hasImage: false,
     ),
-    Question(
+    AssignmentQuestion(
       questionText: "Which is NOT a programming language?",
-      questionType: QuestionType2.multipleChoice,
+      questionType: AssignmentQuestionType.multipleChoice,
       correctAnswer: 1, // HTML
       options: ["Python", "HTML", "JavaScript", "Kotlin"],
       hasImage: false,
     ),
-    Question(
+    AssignmentQuestion(
       questionText: "What widget is shown in this diagram?",
-      questionType: QuestionType2.multipleChoice,
+      questionType: AssignmentQuestionType.multipleChoice,
       correctAnswer: 0, // ListView
       options: ["ListView", "Container", "Scaffold", "Column"],
       hasImage: true,
       imagePath: "assets/images/img.png", // مسار الصورة
     ),
-    Question(
+    AssignmentQuestion(
       questionText: "Which widget is used for scrollable lists in Flutter?",
-      questionType: QuestionType2.multipleChoice,
+      questionType: AssignmentQuestionType.multipleChoice,
       correctAnswer: 0, // ListView
       options: ["ListView", "Container", "Scaffold", "Text"],
       hasImage: false,
     ),
-    Question(
+    AssignmentQuestion(
       questionText: "Dart is a strongly typed language.",
-      questionType: QuestionType2.trueOrFalse,
+      questionType: AssignmentQuestionType.trueOrFalse,
       correctAnswer: 0, // True
       options: ["True", "False"],
       hasImage: false,
     ),
-    Question(
+    AssignmentQuestion(
       questionText:
           "Which state management solution is NOT officially supported by Flutter?",
-      questionType: QuestionType2.multipleChoice,
+      questionType: AssignmentQuestionType.multipleChoice,
       correctAnswer: 3, // MobX
       options: ["Provider", "Riverpod", "Bloc", "MobX"],
       hasImage: false,
     ),
-    Question(
+    AssignmentQuestion(
       questionText: "Hot Reload preserves the app state.",
-      questionType: QuestionType2.trueOrFalse,
+      questionType: AssignmentQuestionType.trueOrFalse,
       correctAnswer: 0, // True
       options: ["True", "False"],
       hasImage: false,
     ),
-    Question(
+    AssignmentQuestion(
       questionText: "What does 'pubspec.yaml' define in a Flutter project?",
-      questionType: QuestionType2.multipleChoice,
+      questionType: AssignmentQuestionType.multipleChoice,
       correctAnswer: 2, // Dependencies
       options: [
         "UI Layout",
@@ -82,17 +82,17 @@ class _TestPageDetailsStudentState extends State<TestPageDetailsStudent> {
       ],
       hasImage: false,
     ),
-    Question(
+    AssignmentQuestion(
       questionText:
           "Flutter uses the same codebase for mobile, web, and desktop.",
-      questionType: QuestionType2.trueOrFalse,
+      questionType: AssignmentQuestionType.trueOrFalse,
       correctAnswer: 0, // True
       options: ["True", "False"],
       hasImage: false,
     ),
-    Question(
+    AssignmentQuestion(
       questionText: "Which of these is NOT a Flutter widget?",
-      questionType: QuestionType2.multipleChoice,
+      questionType: AssignmentQuestionType.multipleChoice,
       correctAnswer: 3, // Fragment
       options: ["AppBar", "Column", "Expanded", "Fragment"],
       hasImage: false,

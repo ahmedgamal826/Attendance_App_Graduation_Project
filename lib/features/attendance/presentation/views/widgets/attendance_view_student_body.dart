@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/attendance/cubits/cubit_student/lecture_cubit.dart';
 import 'package:attendance_app/features/attendance/cubits/cubit_student/lecture_state.dart';
@@ -130,7 +131,13 @@ class _AttendanceScreenBodyViewState extends State<AttendanceScreenBodyView> {
                   return ListView.builder(
                     itemCount: lectures.length,
                     itemBuilder: (context, index) {
-                      return LectureItemStudent(lecture: lectures[index]);
+                      return FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: Duration(milliseconds: index * 500),
+                        child: LectureItemStudent(
+                          lecture: lectures[index],
+                        ),
+                      );
                     },
                   );
                 },

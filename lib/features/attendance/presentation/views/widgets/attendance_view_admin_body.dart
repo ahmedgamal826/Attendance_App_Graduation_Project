@@ -729,6 +729,7 @@
 //   }
 // }
 
+import 'package:animate_do/animate_do.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/attendance/cubits/cubit_admin/lecture_cubit.dart';
 import 'package:attendance_app/features/attendance/cubits/cubit_admin/lecture_state.dart';
@@ -998,7 +999,14 @@ class _AttendanceAdminBodyState extends State<AttendanceAdminBody> {
                       itemCount: state.filteredLectures.length,
                       itemBuilder: (context, index) {
                         final lecture = state.filteredLectures[index];
-                        return _buildLectureItem(context, lecture);
+                        return FadeInUp(
+                          duration: const Duration(milliseconds: 500),
+                          delay: Duration(milliseconds: index * 500),
+                          child: _buildLectureItem(
+                            context,
+                            lecture,
+                          ),
+                        );
                       },
                     );
                   }

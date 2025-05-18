@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:attendance_app/features/materials/cubits/cubit_student/student_material_cubit.dart';
 import 'package:attendance_app/features/materials/cubits/cubit_student/student_material_state.dart';
 import 'package:flutter/material.dart';
@@ -22,10 +23,10 @@ class MaterialsStudentBodyView extends StatelessWidget {
           color: Colors.white,
         ),
         title: const Text(
-          'Student Materials',
+          'Materials',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 22,
+            fontSize: 25,
             color: Colors.white,
           ),
         ),
@@ -89,14 +90,23 @@ class MaterialsStudentBodyView extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 itemCount: materials.length,
                 itemBuilder: (context, index) {
-                  return MaterialItemStudent(material: materials[index]);
+                  return FadeInUp(
+                    duration: const Duration(milliseconds: 500),
+                    delay: Duration(milliseconds: index * 500),
+                    child: MaterialItemStudent(
+                      material: materials[index],
+                    ),
+                  );
                 },
               );
             } else if (state is MaterialError) {
               return Center(
                 child: Text(
                   state.message,
-                  style: const TextStyle(fontSize: 18, color: Colors.red),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.red,
+                  ),
                 ),
               );
             }

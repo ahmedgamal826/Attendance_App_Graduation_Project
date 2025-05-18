@@ -1,22 +1,22 @@
 import 'dart:math';
-import 'package:attendance_app/features/assignments/cubit/cubit_admin/assignment_cubit.dart';
-import 'package:attendance_app/features/assignments/cubit/cubit_admin/assignment_state.dart';
-import 'package:attendance_app/features/assignments/presentation/views/assignment_page_details_2_admin.dart';
+import 'package:attendance_app/features/assignments/models/assignment_model_admin.dart';
+import 'package:attendance_app/features/assignments/presentation/viewmodels/home_assignments_viewmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-// import '../../../cubits/assignment_cubit.dart';
-// import '../../../states/assignment_state.dart';
-// import '../../../../../assignments/presentation/views/widgets/assignment_page_details_2_admin.dart';
+import 'package:provider/provider.dart';
 import 'assignment_list_item.dart';
 
-class TestPageAdminBody extends StatefulWidget {
-  const TestPageAdminBody({Key? key}) : super(key: key);
+class AssignmentPageAdminBody extends StatefulWidget {
+  final String courseId;
+
+  const AssignmentPageAdminBody({Key? key, required this.courseId})
+      : super(key: key);
 
   @override
-  State<TestPageAdminBody> createState() => _TestPageAdminBodyState();
+  State<AssignmentPageAdminBody> createState() =>
+      _AssignmentPageAdminBodyState();
 }
 
-class _TestPageAdminBodyState extends State<TestPageAdminBody>
+class _AssignmentPageAdminBodyState extends State<AssignmentPageAdminBody>
     with SingleTickerProviderStateMixin {
   // Animation controller for list items
   late AnimationController _animationController;
@@ -30,7 +30,6 @@ class _TestPageAdminBodyState extends State<TestPageAdminBody>
       duration: const Duration(milliseconds: 600),
     );
 
-    // Animation will be initialized when tests are loaded
     _animationController.forward();
   }
 
@@ -57,70 +56,57 @@ class _TestPageAdminBodyState extends State<TestPageAdminBody>
     super.dispose();
   }
 
-  // Navigate to the AssessmentPage
-  void _navigateToAssessmentPage(
-    BuildContext context,
-    String assignmentTitle,
-  ) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TestPageDetails2Admin(
-          assignmentTitle: assignmentTitle,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<TestCubit, TestState>(
-      listener: (context, state) {
-        if (state is TestLoaded) {
-          setState(() {
-            _initializeAnimations(state.tests.length);
-          });
-          _animationController.reset();
-          _animationController.forward();
-        }
-      },
-      builder: (context, state) {
-        if (state is TestLoaded) {
+    return ChangeNotifierProvider(
+      create: (_) => HomeAssignmentsViewModel(courseId: widget.courseId),
+      child: Consumer<HomeAssignmentsViewModel>(
+        builder: (context, viewModel, child) {
+          if (viewModel.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (viewModel.assignments.isEmpty) {
+            return const Center(child: Text('No assignments available'));
+          }
+
+          // Initialize animations when assignments are loaded
+          if (_animationsList.isEmpty ||
+              _animationsList.length != viewModel.assignments.length) {
+            _initializeAnimations(viewModel.assignments.length);
+            _animationController.reset();
+            _animationController.forward();
+          }
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: state.tests.length,
+            itemCount: viewModel.assignments.length,
             itemBuilder: (context, index) {
               // Get animation for this item or create a default one
               Animation<double> animation = index < _animationsList.length
                   ? _animationsList[index]
                   : kAlwaysCompleteAnimation;
 
-              return TestListItem(
-                test: state.tests[index],
+              return AssignmentListItem(
+                assignment: viewModel.assignments[index],
                 animation: animation,
                 onDelete: () {
-                  context.read<TestCubit>().deleteTest(index);
+                  viewModel.deleteAssignment(index);
                 },
                 onTap: () {
-                  // Navigate to AssessmentPage when Test 2 is tapped
-                  if (state.tests[index].name == 'Assignment 2') {
-                    _navigateToAssessmentPage(context, state.tests[index].name);
-                  } else {
-                    // For other tests, just print a message for now
-                    print('Tapped on ${state.tests[index].name}');
-                  }
+                  // Navigate to assignment detail page
+                  print('Tapped on ${viewModel.assignments[index].name}');
+                },
+                onEditQuestions: () {
+                  // This is a placeholder - actual implementation would depend on navigation needs
+                  print(
+                      'Edit questions for ${viewModel.assignments[index].name}');
                 },
               );
             },
           );
-        } else if (state is TestLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is TestError) {
-          return Center(child: Text('Error: ${state.message}'));
-        } else {
-          return const Center(child: Text('No tests available'));
-        }
-      },
+        },
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/profile/presentations/views/widgets/info_card.dart';
 import 'package:attendance_app/features/profile/presentations/views/widgets/profile_picture.dart';
@@ -106,25 +107,37 @@ class UserProfileView extends StatelessWidget {
                       ),
                       const SizedBox(height: 30),
                       // Info Cards (Email, Joined Date, Bio, etc.)
-                      InfoCard(
-                        icon: Icons.email,
-                        title: 'Email',
-                        value: email,
-                        delay: 200,
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 100),
+                        child: InfoCard(
+                          icon: Icons.email,
+                          title: 'Email',
+                          value: email,
+                          delay: 200,
+                        ),
                       ),
                       const SizedBox(height: 15),
-                      InfoCard(
-                        icon: Icons.person,
-                        title: 'Role',
-                        value: role,
-                        delay: 400,
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 300),
+                        child: InfoCard(
+                          icon: Icons.person,
+                          title: 'Role',
+                          value: role,
+                          delay: 400,
+                        ),
                       ),
                       const SizedBox(height: 15),
-                      InfoCard(
-                        icon: Icons.calendar_today,
-                        title: 'Joined Date',
-                        value: DateFormat('MMM d, yyyy').format(createdAt),
-                        delay: 600,
+                      FadeInUp(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 500),
+                        child: InfoCard(
+                          icon: Icons.calendar_today,
+                          title: 'Joined Date',
+                          value: DateFormat('MMM d, yyyy').format(createdAt),
+                          delay: 600,
+                        ),
                       ),
 
                       const SizedBox(height: 30),

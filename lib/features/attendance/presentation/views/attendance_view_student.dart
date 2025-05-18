@@ -19,7 +19,7 @@ class AttendanceScreenStudent extends StatelessWidget {
         backgroundColor: AppColors.primaryColor,
         elevation: 2,
         title: Text(
-          '$courseName Attendance (Student)',
+          '$courseName Attendance',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,

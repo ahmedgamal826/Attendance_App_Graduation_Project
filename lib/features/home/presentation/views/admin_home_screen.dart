@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:attendance_app/core/widgets/subject_screen.dart';
 import 'package:attendance_app/features/attendance/presentation/views/update_course_view.dart';
 import 'package:attendance_app/features/home/presentation/views/add_subject_view.dart';
@@ -182,18 +183,22 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                       ),
                                     );
                                   },
-                                  child: CourseCard(
-                                    cardHeight: cardHeight,
-                                    fontSizeTitle: fontSizeTitle,
-                                    fontSizeSubtitle: fontSizeSubtitle,
-                                    constraints: constraints,
-                                    courseName: courseName,
-                                    semester: semester,
-                                    date: date,
-                                    onMorePressed: (context) {
-                                      _showBottomSheet(context,
-                                          subjects[index].id, courseName);
-                                    },
+                                  child: FadeInUp(
+                                    duration: const Duration(milliseconds: 400),
+                                    delay: Duration(milliseconds: index * 500),
+                                    child: CourseCard(
+                                      cardHeight: cardHeight,
+                                      fontSizeTitle: fontSizeTitle,
+                                      fontSizeSubtitle: fontSizeSubtitle,
+                                      constraints: constraints,
+                                      courseName: courseName,
+                                      semester: semester,
+                                      date: date,
+                                      onMorePressed: (context) {
+                                        _showBottomSheet(context,
+                                            subjects[index].id, courseName);
+                                      },
+                                    ),
                                   ),
                                 );
                               },

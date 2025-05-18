@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/question_model_student.dart';
 
 class TestPageDetailsStudentBody extends StatelessWidget {
-  final List<Question> questions;
+  final List<AssignmentQuestion> questions;
   final int currentQuestionIndex;
   final Function(int) onQuestionChanged;
 
@@ -71,7 +71,7 @@ class TestPageDetailsStudentBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Question currentQuestion = questions[currentQuestionIndex];
+    AssignmentQuestion currentQuestion = questions[currentQuestionIndex];
 
     // الألوان المستخدمة في التطبيق
     final Color primaryBlue = const Color(0xFF1A75FF);
@@ -236,7 +236,8 @@ class TestPageDetailsStudentBody extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Answer Options
-          if (currentQuestion.questionType == QuestionType2.trueOrFalse)
+          if (currentQuestion.questionType ==
+              AssignmentQuestionType.trueOrFalse)
             _buildTrueFalseOptions(
                 currentQuestion, primaryBlue, mediumBlue, correctGreen)
           else
@@ -253,8 +254,8 @@ class TestPageDetailsStudentBody extends StatelessWidget {
     );
   }
 
-  Widget _buildTrueFalseOptions(Question currentQuestion, Color primaryBlue,
-      Color mediumBlue, Color correctGreen) {
+  Widget _buildTrueFalseOptions(AssignmentQuestion currentQuestion,
+      Color primaryBlue, Color mediumBlue, Color correctGreen) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -387,7 +388,7 @@ class TestPageDetailsStudentBody extends StatelessWidget {
     );
   }
 
-  Widget _buildMultipleChoiceOptions(Question currentQuestion,
+  Widget _buildMultipleChoiceOptions(AssignmentQuestion currentQuestion,
       Color primaryBlue, Color mediumBlue, Color correctGreen) {
     return Column(
       children: [
@@ -560,8 +561,8 @@ class TestPageDetailsStudentBody extends StatelessWidget {
     );
   }
 
-  Widget _buildQuestionsList(List<Question> questions, int currentQuestionIndex,
-      Color primaryBlue, Color correctGreen) {
+  Widget _buildQuestionsList(List<AssignmentQuestion> questions,
+      int currentQuestionIndex, Color primaryBlue, Color correctGreen) {
     return Container(
       height: 90,
       decoration: BoxDecoration(
@@ -630,7 +631,8 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      questions[index].questionType == QuestionType2.trueOrFalse
+                      questions[index].questionType ==
+                              AssignmentQuestionType.trueOrFalse
                           ? "صح/خطأ"
                           : questions[index].hasImage
                               ? "صورة"

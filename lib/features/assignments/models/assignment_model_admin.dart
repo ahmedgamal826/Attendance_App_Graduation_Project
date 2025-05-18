@@ -1,25 +1,43 @@
-class TestModel {
-  String name;
-  String date;
+import 'package:attendance_app/features/assignments/models/question_model_admin.dart';
 
-  TestModel({
+class AssignmentModel {
+  final String name;
+  final List<QuestionModel> questions;
+  final String date;
+  final String doctor;
+  final int version;
+  final String? deadline;
+
+  AssignmentModel({
     required this.name,
+    required this.questions,
     required this.date,
+    required this.doctor,
+    this.version = 1,
+    this.deadline,
   });
 
-  // Factory method to create a model from raw data
-  factory TestModel.fromJson(Map<String, dynamic> json) {
-    return TestModel(
-      name: json['name'] as String,
-      date: json['date'] as String,
+  factory AssignmentModel.fromMap(Map<String, dynamic> map) {
+    return AssignmentModel(
+      name: map['name'] ?? '',
+      questions: (map['questions'] as List)
+          .map((q) => QuestionModel.fromMap(q))
+          .toList(),
+      date: map['date'] ?? '',
+      doctor: map['doctor'] ?? '',
+      version: map['version'] as int? ?? 1,
+      deadline: map['deadline'],
     );
   }
 
-  // Convert model to raw data
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
+      'questions': questions.map((q) => q.toMap()).toList(),
       'date': date,
+      'doctor': doctor,
+      'version': version,
+      'deadline': deadline,
     };
   }
 }

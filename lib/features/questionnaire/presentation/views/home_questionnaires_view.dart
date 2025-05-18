@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/questionnaire/presentation/viewmodels/home_questionnaires_viewmodel.dart';
 import 'package:attendance_app/features/questionnaire/presentation/views/admin_questionnaire_view.dart';
@@ -154,86 +155,92 @@ class HomeQuestionnairesView extends StatelessWidget {
                               formattedDate = DateFormat('dd-MM-yyyy h:mm a')
                                   .format(DateTime.now());
                             }
-                            return Card(
-                              elevation: 8,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              margin: EdgeInsets.symmetric(
-                                  vertical: screenHeight * 0.015,
-                                  horizontal: screenWidth * 0.02),
-                              color: Colors.white,
-                              child: InkWell(
-                                onTap: () {
-                                  _addOrUpdateQuestionnaire(
-                                    context,
-                                    viewModel,
-                                    initialQuestions: questionnaire.questions
-                                        .map((q) => q.toMap())
-                                        .toList(),
-                                    questionnaireId: questionnaire.name,
-                                  );
-                                },
-                                onLongPress: () {
-                                  viewModel.selectQuestionnaire(index);
-                                  _deleteQuestionnaire(
-                                      context, viewModel, index);
-                                },
-                                borderRadius: BorderRadius.circular(16),
-                                splashColor:
-                                    AppColors.primaryColor.withOpacity(0.2),
-                                highlightColor:
-                                    AppColors.primaryColor.withOpacity(0.1),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: screenHeight * 0.02,
-                                      horizontal: screenWidth * 0.04),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Questionnaire ${index + 1}',
-                                              style: TextStyle(
-                                                fontSize: screenHeight * 0.028,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black87,
-                                                letterSpacing: 0.5,
+                            return FadeInUp(
+                              duration: const Duration(milliseconds: 500),
+                              delay: Duration(milliseconds: index * 500),
+                              child: Card(
+                                elevation: 8,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                margin: EdgeInsets.symmetric(
+                                  vertical: screenHeight * 0.012,
+                                  horizontal: screenWidth * 0.010,
+                                ),
+                                color: Colors.white,
+                                child: InkWell(
+                                  onTap: () {
+                                    _addOrUpdateQuestionnaire(
+                                      context,
+                                      viewModel,
+                                      initialQuestions: questionnaire.questions
+                                          .map((q) => q.toMap())
+                                          .toList(),
+                                      questionnaireId: questionnaire.name,
+                                    );
+                                  },
+                                  onLongPress: () {
+                                    viewModel.selectQuestionnaire(index);
+                                    _deleteQuestionnaire(
+                                        context, viewModel, index);
+                                  },
+                                  borderRadius: BorderRadius.circular(16),
+                                  splashColor:
+                                      AppColors.primaryColor.withOpacity(0.2),
+                                  highlightColor:
+                                      AppColors.primaryColor.withOpacity(0.1),
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: screenHeight * 0.02,
+                                        horizontal: screenWidth * 0.04),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Questionnaire ${index + 1}',
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      screenHeight * 0.028,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black87,
+                                                  letterSpacing: 0.5,
+                                                ),
                                               ),
-                                            ),
-                                            SizedBox(
-                                                height: screenHeight * 0.008),
-                                            Text(
-                                              'Date: $formattedDate',
-                                              style: TextStyle(
-                                                fontSize: screenHeight * 0.02,
-                                                color: Colors.grey[600],
-                                                fontStyle: FontStyle.italic,
+                                              SizedBox(
+                                                  height: screenHeight * 0.008),
+                                              Text(
+                                                'Date: $formattedDate',
+                                                style: TextStyle(
+                                                  fontSize: screenHeight * 0.02,
+                                                  color: Colors.grey[600],
+                                                  fontStyle: FontStyle.italic,
+                                                ),
                                               ),
-                                            ),
-                                            SizedBox(
-                                                height: screenHeight * 0.005),
-                                            Text(
-                                              'By: ${questionnaire.doctor}',
-                                              style: TextStyle(
-                                                fontSize: screenHeight * 0.02,
-                                                color: Colors.grey[600],
+                                              SizedBox(
+                                                  height: screenHeight * 0.005),
+                                              Text(
+                                                'By: Dr/ ${questionnaire.doctor}',
+                                                style: TextStyle(
+                                                  fontSize: screenHeight * 0.02,
+                                                  color: Colors.grey[600],
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      Icon(
-                                        Icons.arrow_forward_ios,
-                                        color: AppColors.primaryColor,
-                                        size: screenHeight * 0.03,
-                                      ),
-                                    ],
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          color: AppColors.primaryColor,
+                                          size: screenHeight * 0.03,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

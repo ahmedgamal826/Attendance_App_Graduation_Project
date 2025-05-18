@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:animate_do/animate_do.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/attendance/presentation/manager/lecture_attendance_student_provider.dart';
 import 'package:attendance_app/features/attendance/presentation/views/widgets/student_card_attendance.dart';
@@ -150,8 +151,18 @@ class _LectureAttendanceScreenState extends State<LectureAttendanceScreen> {
                                   final student = students[index];
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
-                                    child: studentCard(
-                                        student, index, students, provider),
+                                    child: FadeInUp(
+                                      duration:
+                                          const Duration(milliseconds: 500),
+                                      delay:
+                                          Duration(milliseconds: index * 500),
+                                      child: studentCard(
+                                        student,
+                                        index,
+                                        students,
+                                        provider,
+                                      ),
+                                    ),
                                   );
                                 },
                               );
@@ -270,7 +281,9 @@ class _LectureAttendanceScreenState extends State<LectureAttendanceScreen> {
                                   ),
                                 ),
                                 placeholder: (context, url) =>
-                                    const CircularProgressIndicator(),
+                                    const CircularProgressIndicator(
+                                  color: AppColors.primaryColor,
+                                ),
                                 errorWidget: (context, url, error) =>
                                     const Icon(
                                   Icons.person,

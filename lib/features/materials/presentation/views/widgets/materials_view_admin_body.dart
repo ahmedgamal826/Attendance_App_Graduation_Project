@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:attendance_app/features/materials/presentation/views/pdf_material_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -54,58 +55,62 @@ class MaterialsAdminBodyView extends StatelessWidget {
           itemCount: state.files.length,
           itemBuilder: (context, index) {
             final file = state.files[index];
-            return MaterialItemAdmin(
-              file: file,
-              index: index,
-              onDelete: () {
-                context.read<MaterialCubit>().deleteFile(index);
-              },
-              onShare: () async {
-                final errorMessage = await context
-                    .read<MaterialCubit>()
-                    .shareFile(file.name, file.url);
-                if (errorMessage != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(errorMessage),
-                      backgroundColor: Colors.red,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+            return FadeInUp(
+              duration: const Duration(milliseconds: 500),
+              delay: Duration(milliseconds: index * 500),
+              child: MaterialItemAdmin(
+                file: file,
+                index: index,
+                onDelete: () {
+                  context.read<MaterialCubit>().deleteFile(index);
+                },
+                onShare: () async {
+                  final errorMessage = await context
+                      .read<MaterialCubit>()
+                      .shareFile(file.name, file.url);
+                  if (errorMessage != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(errorMessage),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                    ),
-                  );
-                }
-              },
-              parentContext: context,
-              onTap: () {
-                // لما تضغط على الملف
-                if (_isPDF(file.name)) {
-                  // لو الملف PDF، نفتحه في PDFViewerScreen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PdfMaterialViewer(
-                        fileUrl: file.url!,
-                        fileName: file.name,
+                    );
+                  }
+                },
+                parentContext: context,
+                onTap: () {
+                  // لما تضغط على الملف
+                  if (_isPDF(file.name)) {
+                    // لو الملف PDF، نفتحه في PDFViewerScreen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PdfMaterialViewer(
+                          fileUrl: file.url!,
+                          fileName: file.name,
+                        ),
                       ),
-                    ),
-                  );
-                } else {
-                  // لو مش PDF، نعرض رسالة
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text(
-                          'Only PDF files are supported for viewing.'),
-                      backgroundColor: Colors.red,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                    );
+                  } else {
+                    // لو مش PDF، نعرض رسالة
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text(
+                            'Only PDF files are supported for viewing.'),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                    ),
-                  );
-                }
-              },
+                    );
+                  }
+                },
+              ),
             );
           },
         );

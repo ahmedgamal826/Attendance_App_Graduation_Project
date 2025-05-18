@@ -3,6 +3,7 @@ import 'package:attendance_app/features/questionnaire/data/models/questionnaire_
 import 'package:attendance_app/features/questionnaire/presentation/viewmodels/home_questionnaires_viewmodel.dart';
 import 'package:attendance_app/features/questionnaire/presentation/views/student_questionnaire_view.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -13,12 +14,14 @@ class CustomStudentCardHome extends StatelessWidget {
     required this.viewModel,
     required this.courseId,
     required this.index,
+    required this.isCompleted,
   });
 
   final QuestionnaireModel questionnaire;
   final HomeQuestionnairesViewModel viewModel;
   final String courseId;
   final int index;
+  final bool isCompleted;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +35,8 @@ class CustomStudentCardHome extends StatelessWidget {
       formattedDate = DateFormat('dd-MM-yyyy h:mm a').format(DateTime.now());
     }
 
+    final isModified = viewModel.isModifiedList[index];
+
     return Card(
       elevation: 10,
       shape: RoundedRectangleBorder(
@@ -40,7 +45,18 @@ class CustomStudentCardHome extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: InkWell(
         onTap: () {
-          if (questionnaire.isCompleted) {
+          final user = FirebaseAuth.instance.currentUser;
+          if (user == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('User not logged in'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return;
+          }
+
+          if (isCompleted && !isModified) {
             AwesomeDialog(
               context: context,
               dialogType: DialogType.info,
@@ -59,9 +75,8 @@ class CustomStudentCardHome extends StatelessWidget {
                 builder: (context) => StudentQuestionnaireView(
                   questionnaireId: questionnaire.name,
                   courseId: courseId,
-                  onSubmit: () {
-                    viewModel.markQuestionnaireAsCompleted(questionnaire.name);
-                  },
+                  onSubmit: () {},
+                  homeViewModel: viewModel,
                 ),
               ),
             );
@@ -99,7 +114,7 @@ class CustomStudentCardHome extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      'By: ${questionnaire.doctor}',
+                      'By: Dr/ ${questionnaire.doctor}',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.grey,
@@ -108,7 +123,7 @@ class CustomStudentCardHome extends StatelessWidget {
                   ],
                 ),
               ),
-              questionnaire.isCompleted
+              isCompleted && !isModified
                   ? Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
@@ -121,11 +136,24 @@ class CustomStudentCardHome extends StatelessWidget {
                         size: 20,
                       ),
                     )
-                  : const Icon(
-                      Icons.arrow_forward_ios,
-                      color: AppColors.primaryColor,
-                      size: 24,
-                    ),
+                  : isModified
+                      ? Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.orange,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.arrow_forward_ios,
+                          color: AppColors.primaryColor,
+                          size: 24,
+                        ),
             ],
           ),
         ),
