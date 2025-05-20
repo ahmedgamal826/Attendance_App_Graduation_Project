@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:attendance_app/features/assignments/models/student_assignment_response.dart';
+import 'package:attendance_app/features/assignments/data/models/student_assignment_response.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AssignmentSubmissionsViewModel with ChangeNotifier {

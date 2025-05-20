@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
-import 'package:attendance_app/features/assignments/models/student_assignment_response.dart';
+import 'package:attendance_app/features/assignments/data/models/student_assignment_response.dart';
 import 'package:attendance_app/features/assignments/presentation/viewmodels/assignments_submissions_viewmodel.dart';
 import 'package:attendance_app/features/assignments/presentation/views/file_preview_view.dart';
 

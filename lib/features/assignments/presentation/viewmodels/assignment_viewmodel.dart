@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../assignments/models/question_model_admin.dart';
+import '../../data/models/question_model_admin.dart';
 
 class AssignmentViewModel extends ChangeNotifier {
   List<QuestionModel> _questions = [];

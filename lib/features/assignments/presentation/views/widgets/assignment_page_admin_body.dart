@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:attendance_app/features/assignments/models/assignment_model_admin.dart';
+import 'package:attendance_app/features/assignments/data/models/assignment_model_admin.dart';
 import 'package:attendance_app/features/assignments/presentation/viewmodels/home_assignments_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

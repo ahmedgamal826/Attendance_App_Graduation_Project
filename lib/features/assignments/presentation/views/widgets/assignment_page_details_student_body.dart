@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/question_model_student.dart';
+import '../../../data/models/question_model_student.dart';
 
 class TestPageDetailsStudentBody extends StatelessWidget {
   final List<AssignmentQuestion> questions;

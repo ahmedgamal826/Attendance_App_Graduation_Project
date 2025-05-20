@@ -1706,7 +1706,7 @@
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../models/assignment_model_student.dart';
+import '../../../data/models/assignment_model_student.dart';
 
 class TestListItem extends StatefulWidget {
   final TestModel test;

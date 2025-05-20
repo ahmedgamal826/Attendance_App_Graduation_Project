@@ -1,4 +1,4 @@
-import 'package:attendance_app/features/assignments/models/question_model_admin.dart';
+import 'package:attendance_app/features/assignments/data/models/question_model_admin.dart';
 
 class AssignmentModel {
   final String name;

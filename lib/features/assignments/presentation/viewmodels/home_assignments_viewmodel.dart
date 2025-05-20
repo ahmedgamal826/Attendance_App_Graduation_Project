@@ -1,5 +1,5 @@
-import 'package:attendance_app/features/assignments/models/assignment_model_admin.dart';
-import 'package:attendance_app/features/assignments/models/question_model_admin.dart';
+import 'package:attendance_app/features/assignments/data/models/assignment_model_admin.dart';
+import 'package:attendance_app/features/assignments/data/models/question_model_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

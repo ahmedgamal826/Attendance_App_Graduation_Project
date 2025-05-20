@@ -3421,7 +3421,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
-import 'package:attendance_app/features/assignments/models/question_model_student.dart';
+import 'package:attendance_app/features/assignments/data/models/question_model_student.dart';
 import 'package:attendance_app/features/assignments/presentation/viewmodels/student_assignment_detail_viewmodel.dart';
 import 'package:attendance_app/features/assignments/presentation/viewmodels/student_assignments_viewmodel.dart';
 import 'file_preview_view.dart';

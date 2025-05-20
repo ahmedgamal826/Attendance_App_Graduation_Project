@@ -1359,8 +1359,8 @@
 // }
 
 import 'package:attendance_app/core/utils/app_colors.dart';
-import 'package:attendance_app/features/assignments/models/assignment_model_student.dart';
-import 'package:attendance_app/features/assignments/models/student_assignment_response.dart';
+import 'package:attendance_app/features/assignments/data/models/assignment_model_student.dart';
+import 'package:attendance_app/features/assignments/data/models/student_assignment_response.dart';
 import 'package:attendance_app/features/assignments/presentation/viewmodels/student_assignments_viewmodel.dart';
 import 'package:attendance_app/features/assignments/presentation/views/assignment_submissions_view.dart';
 import 'package:attendance_app/features/assignments/presentation/views/student_assignment_detail_view.dart';

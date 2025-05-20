@@ -1042,7 +1042,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:attendance_app/features/assignments/models/question_model_student.dart';
+import 'package:attendance_app/features/assignments/data/models/question_model_student.dart';
 
 class StudentAssignmentDetailViewModel extends ChangeNotifier {
   final String courseId;

@@ -1,7 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
-import 'package:attendance_app/features/assignments/models/assignment_model_admin.dart';
-import 'package:attendance_app/features/assignments/models/question_model_admin.dart';
+import 'package:attendance_app/features/assignments/data/models/assignment_model_admin.dart';
+import 'package:attendance_app/features/assignments/data/models/question_model_admin.dart';
 import 'package:attendance_app/features/assignments/presentation/viewmodels/home_assignments_viewmodel.dart';
 import 'package:attendance_app/features/assignments/presentation/views/admin_assignment_view.dart';
 import 'package:attendance_app/features/assignments/presentation/views/widgets/assignment_list_item.dart';

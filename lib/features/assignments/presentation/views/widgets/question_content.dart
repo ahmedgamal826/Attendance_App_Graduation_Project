@@ -1,5 +1,5 @@
 import 'package:attendance_app/core/utils/app_colors.dart';
-import 'package:attendance_app/features/assignments/models/question_model_admin.dart';
+import 'package:attendance_app/features/assignments/data/models/question_model_admin.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import '../file_preview_view.dart';

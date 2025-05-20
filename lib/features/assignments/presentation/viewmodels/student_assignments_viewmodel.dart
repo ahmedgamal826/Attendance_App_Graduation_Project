@@ -1,4 +1,4 @@
-import 'package:attendance_app/features/assignments/models/assignment_model_student.dart';
+import 'package:attendance_app/features/assignments/data/models/assignment_model_student.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

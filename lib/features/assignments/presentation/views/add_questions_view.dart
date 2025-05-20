@@ -2,7 +2,7 @@ import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/add_question_viewmodel.dart';
-import '../../models/question_model_admin.dart';
+import '../../data/models/question_model_admin.dart';
 import 'package:path/path.dart' as path;
 import 'file_preview_view.dart';
 
