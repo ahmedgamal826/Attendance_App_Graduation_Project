@@ -102,6 +102,7 @@ class _AssignmentPageAdminBodyState extends State<AssignmentPageAdminBody>
                   print(
                       'Edit questions for ${viewModel.assignments[index].name}');
                 },
+                courseName: viewModel.courseName,
               );
             },
           );

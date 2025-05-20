@@ -12,6 +12,7 @@ class HomeAssignmentsViewModel extends ChangeNotifier {
   bool _isProcessing = false;
   String _errorMessage = '';
   String _successMessage = '';
+  String? _courseName;
 
   final String courseId;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -23,9 +24,11 @@ class HomeAssignmentsViewModel extends ChangeNotifier {
   bool get isProcessing => _isProcessing;
   String get errorMessage => _errorMessage;
   String get successMessage => _successMessage;
+  String get courseName => _courseName ?? 'assignments';
 
   HomeAssignmentsViewModel({required this.courseId}) {
     _initializeAssignments();
+    _fetchCourseName();
   }
 
   void _initializeAssignments() async {
@@ -271,6 +274,21 @@ class HomeAssignmentsViewModel extends ChangeNotifier {
     } finally {
       _isProcessing = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> _fetchCourseName() async {
+    try {
+      final courseDoc =
+          await _firestore.collection('Courses').doc(courseId).get();
+
+      if (courseDoc.exists) {
+        final courseData = courseDoc.data();
+        _courseName = courseData?['courseName'] as String?;
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error fetching course name: $e');
     }
   }
 }

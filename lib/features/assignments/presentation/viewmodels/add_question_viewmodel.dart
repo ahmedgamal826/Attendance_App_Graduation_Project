@@ -197,13 +197,105 @@ class AddQuestionViewModel extends ChangeNotifier {
     return 'Document';
   }
 
+  // QuestionModel? saveQuestion() {
+  //   final questionText = questionController.text.trim();
+  //   if (questionText.isEmpty) return null;
+
+  //   if (questionType == 'TrueFalse') {
+  //     if (correctAnswerTrueFalse == null) return null;
+
+  //     return QuestionModel(
+  //       type: 'TrueFalse',
+  //       question: questionText,
+  //       options: ['True', 'False'],
+  //       correct: correctAnswerTrueFalse,
+  //     );
+  //   } else if (questionType == 'MCQ') {
+  //     final options = mcqOptionControllers
+  //         .map((controller) => controller.text.trim())
+  //         .where((text) => text.isNotEmpty)
+  //         .toList();
+
+  //     if (options.length < 2 || correctAnswerMcq == null) return null;
+
+  //     return QuestionModel(
+  //       type: 'MCQ',
+  //       question: questionText,
+  //       options: options,
+  //       correct: options[correctAnswerMcq!],
+  //     );
+  //   } else if (questionType == 'Upload File') {
+  //     if (_uploadedFileUrl == null) return null; // Ensure file is uploaded
+
+  //     // Extract clean filename from either selected filename or URL
+  //     String cleanFileName = _selectedFileName ?? '';
+
+  //     // If we don't have a filename or it starts with http (meaning it's a URL), try to extract from the URL
+  //     if (cleanFileName.isEmpty || cleanFileName.startsWith('http')) {
+  //       if (_uploadedFileUrl != null) {
+  //         final String url = _uploadedFileUrl!;
+
+  //         // Try to get filename using timestamp pattern (common in Firebase Storage)
+  //         RegExp timestampFilenameRegex = RegExp(r'\/(\d+_[^?]+)');
+  //         var timestampMatches = timestampFilenameRegex.firstMatch(url);
+  //         if (timestampMatches != null && timestampMatches.group(1) != null) {
+  //           cleanFileName = Uri.decodeFull(timestampMatches.group(1)!);
+  //         } else {
+  //           // Try to get filename from the URL
+  //           if (!url.contains('?')) {
+  //             cleanFileName = path.basename(url);
+  //           } else {
+  //             // For URLs with query parameters, extract the path part
+  //             final parts = url.split('?').first.split('/');
+  //             if (parts.isNotEmpty) {
+  //               final lastPart = parts.last;
+  //               if (lastPart.isNotEmpty && lastPart.contains('.')) {
+  //                 cleanFileName = Uri.decodeFull(lastPart);
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+
+  //       // If still no filename, use a default
+  //       if (cleanFileName.isEmpty) {
+  //         cleanFileName = 'uploaded_file';
+
+  //         // Try to detect extension from URL
+  //         if (_uploadedFileUrl != null) {
+  //           final url = _uploadedFileUrl!.toLowerCase();
+  //           if (url.contains('.pdf')) {
+  //             cleanFileName += '.pdf';
+  //           } else if (url.contains('.doc')) {
+  //             cleanFileName += '.doc';
+  //           } else if (url.contains('.jpg') || url.contains('.jpeg')) {
+  //             cleanFileName += '.jpg';
+  //           } else if (url.contains('.png')) {
+  //             cleanFileName += '.png';
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     return QuestionModel(
+  //       type: 'Upload File',
+  //       question: questionText,
+  //       fileUrl: _uploadedFileUrl,
+  //       fileName: cleanFileName,
+  //       fileType: _selectedFileType,
+  //       fileSize: _selectedFileSize,
+  //       options: [cleanFileName], // Using the clean filename for options too
+  //     );
+  //   }
+  //   return null;
+  // }
+
   QuestionModel? saveQuestion() {
     final questionText = questionController.text.trim();
     if (questionText.isEmpty) return null;
 
     if (questionType == 'TrueFalse') {
       if (correctAnswerTrueFalse == null) return null;
-
       return QuestionModel(
         type: 'TrueFalse',
         question: questionText,
@@ -218,63 +310,29 @@ class AddQuestionViewModel extends ChangeNotifier {
 
       if (options.length < 2 || correctAnswerMcq == null) return null;
 
+      String correctValue = options[correctAnswerMcq!]; // Use the text directly
       return QuestionModel(
         type: 'MCQ',
         question: questionText,
         options: options,
-        correct: options[correctAnswerMcq!],
+        correct: correctValue, // Save the correct text, not index
       );
     } else if (questionType == 'Upload File') {
-      if (_uploadedFileUrl == null) return null; // Ensure file is uploaded
+      if (_uploadedFileUrl == null) return null;
 
-      // Extract clean filename from either selected filename or URL
       String cleanFileName = _selectedFileName ?? '';
-
-      // If we don't have a filename or it starts with http (meaning it's a URL), try to extract from the URL
       if (cleanFileName.isEmpty || cleanFileName.startsWith('http')) {
         if (_uploadedFileUrl != null) {
-          final String url = _uploadedFileUrl!;
-
-          // Try to get filename using timestamp pattern (common in Firebase Storage)
+          final url = _uploadedFileUrl!;
           RegExp timestampFilenameRegex = RegExp(r'\/(\d+_[^?]+)');
           var timestampMatches = timestampFilenameRegex.firstMatch(url);
           if (timestampMatches != null && timestampMatches.group(1) != null) {
             cleanFileName = Uri.decodeFull(timestampMatches.group(1)!);
           } else {
-            // Try to get filename from the URL
-            if (!url.contains('?')) {
-              cleanFileName = path.basename(url);
-            } else {
-              // For URLs with query parameters, extract the path part
-              final parts = url.split('?').first.split('/');
-              if (parts.isNotEmpty) {
-                final lastPart = parts.last;
-                if (lastPart.isNotEmpty && lastPart.contains('.')) {
-                  cleanFileName = Uri.decodeFull(lastPart);
-                }
-              }
-            }
+            cleanFileName = path.basename(url.split('?').first);
           }
         }
-
-        // If still no filename, use a default
-        if (cleanFileName.isEmpty) {
-          cleanFileName = 'uploaded_file';
-
-          // Try to detect extension from URL
-          if (_uploadedFileUrl != null) {
-            final url = _uploadedFileUrl!.toLowerCase();
-            if (url.contains('.pdf')) {
-              cleanFileName += '.pdf';
-            } else if (url.contains('.doc')) {
-              cleanFileName += '.doc';
-            } else if (url.contains('.jpg') || url.contains('.jpeg')) {
-              cleanFileName += '.jpg';
-            } else if (url.contains('.png')) {
-              cleanFileName += '.png';
-            }
-          }
-        }
+        if (cleanFileName.isEmpty) cleanFileName = 'uploaded_file';
       }
 
       return QuestionModel(
@@ -284,7 +342,7 @@ class AddQuestionViewModel extends ChangeNotifier {
         fileName: cleanFileName,
         fileType: _selectedFileType,
         fileSize: _selectedFileSize,
-        options: [cleanFileName], // Using the clean filename for options too
+        options: [cleanFileName],
       );
     }
     return null;

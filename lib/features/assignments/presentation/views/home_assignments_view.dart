@@ -7,6 +7,7 @@ import 'package:attendance_app/features/assignments/presentation/views/admin_ass
 import 'package:attendance_app/features/assignments/presentation/views/widgets/assignment_list_item.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -60,6 +61,7 @@ class HomeAssignmentsView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
+                  cursorColor: AppColors.primaryColor,
                   autofocus: true,
                   decoration: InputDecoration(
                     hintText: 'Enter assignment name',
@@ -165,8 +167,12 @@ class HomeAssignmentsView extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel',
-                  style: TextStyle(color: AppColors.primaryColor)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: AppColors.primaryColor,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -196,6 +202,43 @@ class HomeAssignmentsView extends StatelessWidget {
     );
   }
 
+  // Future<void> _addOrUpdateAssignment(
+  //     BuildContext context, HomeAssignmentsViewModel viewModel,
+  //     {List<Map<String, dynamic>> initialQuestions = const [],
+  //     String? assignmentId,
+  //     String? name,
+  //     String? deadline}) async {
+  //   final newQuestions = await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => AdminAssignmentView(
+  //         courseId: courseId,
+  //         initialQuestions: initialQuestions,
+  //       ),
+  //     ),
+  //   );
+
+  //   if (newQuestions == null || newQuestions is! List || newQuestions.isEmpty) {
+  //     return;
+  //   }
+
+  //   try {
+  //     final questionsList = newQuestions
+  //         .map((q) => QuestionModel.fromMap(q as Map<String, dynamic>))
+  //         .toList();
+
+  //     if (assignmentId == null) {
+  //       // Add new assignment with deadline
+  //       await viewModel.addAssignment(name!, questionsList, deadline: deadline);
+  //     } else {
+  //       // Update existing assignment, keeping the deadline the same
+  //       await viewModel.updateAssignment(assignmentId, questionsList);
+  //     }
+  //   } catch (e) {
+  //     print('Error in _addOrUpdateAssignment: $e');
+  //   }
+  // }
+
   Future<void> _addOrUpdateAssignment(
       BuildContext context, HomeAssignmentsViewModel viewModel,
       {List<Map<String, dynamic>> initialQuestions = const [],
@@ -222,11 +265,10 @@ class HomeAssignmentsView extends StatelessWidget {
           .toList();
 
       if (assignmentId == null) {
-        // Add new assignment with deadline
         await viewModel.addAssignment(name!, questionsList, deadline: deadline);
       } else {
-        // Update existing assignment, keeping the deadline the same
-        await viewModel.updateAssignment(assignmentId, questionsList);
+        await viewModel.updateAssignment(assignmentId, questionsList,
+            deadline: deadline);
       }
     } catch (e) {
       print('Error in _addOrUpdateAssignment: $e');
@@ -274,10 +316,14 @@ class HomeAssignmentsView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
+                  cursorColor: AppColors.primaryColor,
                   controller: nameController,
                   autofocus: true,
                   decoration: InputDecoration(
                     labelText: 'Assignment Name',
+                    labelStyle: const TextStyle(
+                      color: AppColors.primaryColor,
+                    ),
                     filled: true,
                     fillColor: Colors.grey.shade50,
                     border: OutlineInputBorder(
@@ -545,33 +591,30 @@ class HomeAssignmentsView extends StatelessWidget {
                               itemCount: viewModel.assignments.length,
                               itemBuilder: (context, index) {
                                 final assignment = viewModel.assignments[index];
-                                return FadeInUp(
-                                  duration: const Duration(milliseconds: 500),
-                                  delay: Duration(milliseconds: index * 100),
-                                  child: AssignmentListItem(
-                                    assignment: assignment,
-                                    animation: AlwaysStoppedAnimation(1.0),
-                                    onDelete: () {
-                                      viewModel.selectAssignment(index);
-                                      _deleteAssignment(
-                                          context, viewModel, index);
-                                    },
-                                    onTap: () {
-                                      _showEditAssignmentDialog(
-                                        context,
-                                        viewModel,
-                                        assignment,
-                                      );
-                                    },
-                                    onEditQuestions: () {
-                                      _editAssignmentQuestions(
-                                        context,
-                                        viewModel,
-                                        assignment,
-                                      );
-                                    },
-                                  ),
-                                );
+                                return AssignmentListItem(
+                                  assignment: assignment,
+                                  animation: AlwaysStoppedAnimation(1.0),
+                                  onDelete: () {
+                                    viewModel.selectAssignment(index);
+                                    _deleteAssignment(
+                                        context, viewModel, index);
+                                  },
+                                  onTap: () {
+                                    _showEditAssignmentDialog(
+                                      context,
+                                      viewModel,
+                                      assignment,
+                                    );
+                                  },
+                                  onEditQuestions: () {
+                                    _editAssignmentQuestions(
+                                      context,
+                                      viewModel,
+                                      assignment,
+                                    );
+                                  },
+                                  courseName: viewModel.courseName,
+                                ).animate().flipV(duration: 400.ms);
                               },
                             ),
                           ),

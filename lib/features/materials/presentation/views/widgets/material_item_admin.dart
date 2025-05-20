@@ -138,6 +138,25 @@ class _MaterialItemAdminState extends State<MaterialItemAdmin> {
 
   @override
   Widget build(BuildContext context) {
+    // دالة جديدة لتحديد الأيقونة بناءً على نوع الملف
+    IconData _getFileIcon(String? fileName) {
+      if (fileName == null || fileName.isEmpty)
+        return Icons.insert_drive_file_outlined;
+
+      // استخراج الامتداد من الـ URL
+      final extension = fileName.split('.').last.toLowerCase();
+
+      // التحقق من نوع الملف
+      if (extension == 'pdf') {
+        return Icons.picture_as_pdf;
+      } else if (['jpg', 'jpeg', 'png', 'gif'].contains(extension)) {
+        return Icons.image;
+      } else {
+        return Icons
+            .insert_drive_file_outlined; // أيقونة افتراضية إذا كان نوع غير معروف
+      }
+    }
+
     return GestureDetector(
       onTapDown: (_) {
         setState(() {
@@ -155,95 +174,73 @@ class _MaterialItemAdminState extends State<MaterialItemAdmin> {
         });
       },
       onTap: widget.onTap, // استخدام onTap الجديد
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.white,
-              const Color(0xFFE3F2FD).withOpacity(0.8),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: const Color(0xFF90CAF9),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(_isTapped ? 0.15 : 0.1),
-              blurRadius: _isTapped ? 8 : 6,
-              offset: Offset(0, _isTapped ? 4 : 2),
-              spreadRadius: _isTapped ? 2 : 1,
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1976D2).withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.description_rounded,
-                  size: 32,
-                  color: Color(0xFF1976D2),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: Text(
-                        widget.file.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D47A1),
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.file.size,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              InkWell(
-                onTap: () {
-                  _showOptionsBottomSheet(context);
-                },
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: const Color(0xFF1976D2).withOpacity(0.1),
-                  ),
-                  child: const Icon(
-                    Icons.more_vert,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Card(
+          elevation: 5,
+          color: Colors.white,
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              child: Row(
+                children: [
+                  Icon(
+                    _getFileIcon(widget.file.name),
+                    // Icons.description_rounded,
+                    size: 40,
                     color: Color(0xFF1976D2),
-                    size: 23,
                   ),
-                ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Text(
+                            widget.file.name,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0D47A1),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          widget.file.size,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      _showOptionsBottomSheet(context);
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF1976D2).withOpacity(0.1),
+                      ),
+                      child: const Icon(
+                        Icons.more_vert,
+                        color: Color(0xFF1976D2),
+                        size: 23,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
