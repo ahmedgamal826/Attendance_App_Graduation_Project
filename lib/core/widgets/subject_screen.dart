@@ -1,6 +1,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:attendance_app/features/questionnaire/presentation/views/home_questionnaires_view.dart';
 import 'package:attendance_app/features/questionnaire/presentation/views/student_home_questionnaires_view.dart';
+import 'package:attendance_app/features/tests/presentation/views/tests_page_admin.dart';
+import 'package:attendance_app/features/tests/presentation/views/tests_page_student.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +13,9 @@ import 'package:attendance_app/features/assignments/presentation/views/assignmen
 import 'package:attendance_app/features/attendance/presentation/views/attendance_view_admin.dart';
 import 'package:attendance_app/features/materials/presentation/views/material_view_student.dart';
 import 'package:attendance_app/features/materials/presentation/views/materials_view_admin.dart';
-import 'package:attendance_app/features/tests/presentation/views/test_page_admin.dart';
 import 'package:attendance_app/features/analysis/presentation/views/analysis_view_admin.dart';
 import 'package:attendance_app/features/attendance/presentation/views/attendance_view_student.dart';
 import 'package:attendance_app/features/assignments/presentation/views/assignment_page_student.dart';
-import 'package:attendance_app/features/tests/presentation/views/test_page_student.dart';
 
 class SubjectScreen extends StatefulWidget {
   final String courseId;
@@ -131,13 +131,16 @@ class _SubjectScreenState extends State<SubjectScreen>
       case 'Assignments':
         destination = role == 'Admin'
             ? AssignmentsPageAdmin(courseId: widget.courseId)
-            :  AssignmentsPageStudent(
-              courseId: widget.courseId,
-            );
+            : AssignmentsPageStudent(
+                courseId: widget.courseId,
+              );
         break;
       case 'Test':
-        destination =
-            role == 'Admin' ? const TestPageAdmin() : const TestPageStudent();
+        destination = role == 'Admin'
+            ? TestsPageAdmin(courseId: widget.courseId)
+            : TestsPageStudent(
+                courseId: widget.courseId,
+              );
         break;
 
       case 'Questionnaires':

@@ -1,20 +1,22 @@
+import 'package:attendance_app/features/tests/data/models/tests_question_model_student.dart';
 import 'package:flutter/material.dart';
-import '../../../models/question_model_student.dart';
 
-class TestPageDetailsStudentBody extends StatelessWidget {
-  final List<Question> questions;
+class TestsTestsPageDetailsStudentBody extends StatelessWidget {
+  final List<TestsStudentQuestion> questions;
   final int currentQuestionIndex;
   final Function(int) onQuestionChanged;
 
-  const TestPageDetailsStudentBody({
+  const TestsTestsPageDetailsStudentBody({
     Key? key,
     required this.questions,
     required this.currentQuestionIndex,
     required this.onQuestionChanged,
   }) : super(key: key);
 
-  // معاينة الصورة بشكل كامل
-  void _showFullScreenImage(BuildContext context, String imagePath) {
+  void _showFullScreenImage(
+    BuildContext context,
+    String imagePath,
+  ) {
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
@@ -26,7 +28,6 @@ class TestPageDetailsStudentBody extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Image with interactive viewer for zoom
                   Center(
                     child: InteractiveViewer(
                       boundaryMargin: const EdgeInsets.all(20),
@@ -38,7 +39,6 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Close button
                   Positioned(
                     top: 10,
                     right: 10,
@@ -68,9 +68,8 @@ class TestPageDetailsStudentBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Question currentQuestion = questions[currentQuestionIndex];
+    TestsStudentQuestion currentQuestion = questions[currentQuestionIndex];
 
-    // الألوان المستخدمة في التطبيق
     final Color primaryBlue = const Color(0xFF1A75FF);
     final Color lightBlue = const Color(0xFFF0F7FF);
     final Color mediumBlue = const Color(0xFFE6F0FF);
@@ -80,7 +79,6 @@ class TestPageDetailsStudentBody extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Question Container - Only show if current question doesn't have an image
           if (!currentQuestion.hasImage)
             Container(
               width: double.infinity,
@@ -114,7 +112,7 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    currentQuestion.questionText,
+                    currentQuestion.question,
                     textAlign: TextAlign.left,
                     style: const TextStyle(
                       fontSize: 18,
@@ -125,11 +123,9 @@ class TestPageDetailsStudentBody extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 16),
-
-          // Image Container
           Container(
             width: double.infinity,
-            height: 200, // ارتفاع الصورة
+            height: 200,
             decoration: BoxDecoration(
               color: mediumBlue,
               border: Border.all(
@@ -148,118 +144,114 @@ class TestPageDetailsStudentBody extends StatelessWidget {
             ),
             child: currentQuestion.hasImage
                 ? GestureDetector(
-              onTap: () {
-                // افتح الصورة في وضع ملء الشاشة عند النقر عليها
-                _showFullScreenImage(
-                  context,
-                  currentQuestion.imagePath ?? "assets/images/img.png",
-                );
-              },
-              child: Stack(
-                children: [
-                  // صورة السؤال
-                  Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.asset(
-                        currentQuestion.imagePath ??
-                            "assets/images/img.png",
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                  // وضع رقم السؤال في الأعلى
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: primaryBlue,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        "Question ${currentQuestionIndex + 1}",
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                    onTap: () {
+                      _showFullScreenImage(
+                        context,
+                        currentQuestion.imagePath ?? "assets/images/img.png",
+                      );
+                    },
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.asset(
+                              currentQuestion.imagePath ??
+                                  "assets/images/img.png",
+                              fit: BoxFit.contain,
+                            ),
+                          ),
                         ),
-                      ),
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: primaryBlue,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              "Question ${currentQuestionIndex + 1}",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: primaryBlue.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.zoom_in,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  // أيقونة للإشارة إلى أن الصورة قابلة للتكبير
-                  Positioned(
-                    bottom: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: primaryBlue.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.zoom_in,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
+                  )
                 : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.image,
-                    size: 48,
-                    color: primaryBlue.withOpacity(0.5),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Question Image",
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: primaryBlue.withOpacity(0.7),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.image,
+                          size: 48,
+                          color: primaryBlue.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Question Image",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: primaryBlue.withOpacity(0.7),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
           ),
           const SizedBox(height: 24),
-
-          // Answer Options
-          if (currentQuestion.questionType == QuestionType2.trueOrFalse)
-            _buildTrueFalseOptions(currentQuestion, primaryBlue, mediumBlue, correctGreen)
-          else
-            _buildMultipleChoiceOptions(currentQuestion, primaryBlue, mediumBlue, correctGreen),
-
+          if (currentQuestion.type == 'TrueFalse' ||
+              currentQuestion.type == 'true_false')
+            _buildTrueFalseOptions(
+                currentQuestion, primaryBlue, mediumBlue, correctGreen)
+          else if (currentQuestion.type == 'MCQ' ||
+              currentQuestion.type == 'multiple_choice')
+            _buildMultipleChoiceOptions(
+                currentQuestion, primaryBlue, mediumBlue, correctGreen),
           const Spacer(),
-
-          // Bottom Questions List (Horizontal Scrollable)
-          _buildQuestionsList(questions, currentQuestionIndex, primaryBlue, correctGreen),
+          _buildQuestionsList(
+              questions, currentQuestionIndex, primaryBlue, correctGreen),
         ],
       ),
     );
   }
 
-  Widget _buildTrueFalseOptions(Question currentQuestion, Color primaryBlue, Color mediumBlue, Color correctGreen) {
+  Widget _buildTrueFalseOptions(TestsStudentQuestion currentQuestion,
+      Color primaryBlue, Color mediumBlue, Color correctGreen) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // True option
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: currentQuestion.correctAnswer == 0
+              color: currentQuestion.correctAnswerIndex == 0
                   ? correctGreen.withOpacity(0.2)
                   : mediumBlue,
               border: Border.all(
-                color: currentQuestion.correctAnswer == 0
+                color: currentQuestion.correctAnswerIndex == 0
                     ? correctGreen
                     : primaryBlue,
                 width: 2,
@@ -280,7 +272,7 @@ class TestPageDetailsStudentBody extends StatelessWidget {
               children: [
                 Icon(
                   Icons.check_circle,
-                  color: currentQuestion.correctAnswer == 0
+                  color: currentQuestion.correctAnswerIndex == 0
                       ? correctGreen
                       : primaryBlue,
                 ),
@@ -288,7 +280,7 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                 Text(
                   "True",
                   style: TextStyle(
-                    color: currentQuestion.correctAnswer == 0
+                    color: currentQuestion.correctAnswerIndex == 0
                         ? correctGreen
                         : primaryBlue,
                     fontSize: 16,
@@ -296,7 +288,7 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                if (currentQuestion.correctAnswer == 0)
+                if (currentQuestion.correctAnswerIndex == 0)
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
@@ -314,15 +306,14 @@ class TestPageDetailsStudentBody extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
-        // False option
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: currentQuestion.correctAnswer == 1
+              color: currentQuestion.correctAnswerIndex == 1
                   ? correctGreen.withOpacity(0.2)
                   : mediumBlue,
               border: Border.all(
-                color: currentQuestion.correctAnswer == 1
+                color: currentQuestion.correctAnswerIndex == 1
                     ? correctGreen
                     : primaryBlue,
                 width: 2,
@@ -343,7 +334,7 @@ class TestPageDetailsStudentBody extends StatelessWidget {
               children: [
                 Icon(
                   Icons.cancel,
-                  color: currentQuestion.correctAnswer == 1
+                  color: currentQuestion.correctAnswerIndex == 1
                       ? correctGreen
                       : primaryBlue,
                 ),
@@ -351,7 +342,7 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                 Text(
                   "False",
                   style: TextStyle(
-                    color: currentQuestion.correctAnswer == 1
+                    color: currentQuestion.correctAnswerIndex == 1
                         ? correctGreen
                         : primaryBlue,
                     fontSize: 16,
@@ -359,7 +350,7 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                if (currentQuestion.correctAnswer == 1)
+                if (currentQuestion.correctAnswerIndex == 1)
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
@@ -380,21 +371,21 @@ class TestPageDetailsStudentBody extends StatelessWidget {
     );
   }
 
-  Widget _buildMultipleChoiceOptions(Question currentQuestion, Color primaryBlue, Color mediumBlue, Color correctGreen) {
+  Widget _buildMultipleChoiceOptions(TestsStudentQuestion currentQuestion,
+      Color primaryBlue, Color mediumBlue, Color correctGreen) {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Option 1
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: currentQuestion.correctAnswer == 0
+                  color: currentQuestion.correctAnswerIndex == 0
                       ? correctGreen.withOpacity(0.2)
                       : mediumBlue,
                   border: Border.all(
-                    color: currentQuestion.correctAnswer == 0
+                    color: currentQuestion.correctAnswerIndex == 0
                         ? correctGreen
                         : primaryBlue,
                     width: 2,
@@ -409,12 +400,15 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 child: Text(
-                  currentQuestion.options[0],
+                  currentQuestion.options.length > 0
+                      ? currentQuestion.options[0]
+                      : 'Option A',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: currentQuestion.correctAnswer == 0
+                    color: currentQuestion.correctAnswerIndex == 0
                         ? correctGreen
                         : primaryBlue,
                     fontSize: 16,
@@ -424,15 +418,14 @@ class TestPageDetailsStudentBody extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            // Option 2
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: currentQuestion.correctAnswer == 1
+                  color: currentQuestion.correctAnswerIndex == 1
                       ? correctGreen.withOpacity(0.2)
                       : mediumBlue,
                   border: Border.all(
-                    color: currentQuestion.correctAnswer == 1
+                    color: currentQuestion.correctAnswerIndex == 1
                         ? correctGreen
                         : primaryBlue,
                     width: 2,
@@ -447,12 +440,15 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 child: Text(
-                  currentQuestion.options[1],
+                  currentQuestion.options.length > 1
+                      ? currentQuestion.options[1]
+                      : 'Option B',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: currentQuestion.correctAnswer == 1
+                    color: currentQuestion.correctAnswerIndex == 1
                         ? correctGreen
                         : primaryBlue,
                     fontSize: 16,
@@ -467,15 +463,14 @@ class TestPageDetailsStudentBody extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Option 3
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: currentQuestion.correctAnswer == 2
+                  color: currentQuestion.correctAnswerIndex == 2
                       ? correctGreen.withOpacity(0.2)
                       : mediumBlue,
                   border: Border.all(
-                    color: currentQuestion.correctAnswer == 2
+                    color: currentQuestion.correctAnswerIndex == 2
                         ? correctGreen
                         : primaryBlue,
                     width: 2,
@@ -490,12 +485,15 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 child: Text(
-                  currentQuestion.options[2],
+                  currentQuestion.options.length > 2
+                      ? currentQuestion.options[2]
+                      : 'Option C',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: currentQuestion.correctAnswer == 2
+                    color: currentQuestion.correctAnswerIndex == 2
                         ? correctGreen
                         : primaryBlue,
                     fontSize: 16,
@@ -505,15 +503,14 @@ class TestPageDetailsStudentBody extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            // Option 4
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: currentQuestion.correctAnswer == 3
+                  color: currentQuestion.correctAnswerIndex == 3
                       ? correctGreen.withOpacity(0.2)
                       : mediumBlue,
                   border: Border.all(
-                    color: currentQuestion.correctAnswer == 3
+                    color: currentQuestion.correctAnswerIndex == 3
                         ? correctGreen
                         : primaryBlue,
                     width: 2,
@@ -528,12 +525,15 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 child: Text(
-                  currentQuestion.options[3],
+                  currentQuestion.options.length > 3
+                      ? currentQuestion.options[3]
+                      : 'Option D',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: currentQuestion.correctAnswer == 3
+                    color: currentQuestion.correctAnswerIndex == 3
                         ? correctGreen
                         : primaryBlue,
                     fontSize: 16,
@@ -548,7 +548,8 @@ class TestPageDetailsStudentBody extends StatelessWidget {
     );
   }
 
-  Widget _buildQuestionsList(List<Question> questions, int currentQuestionIndex, Color primaryBlue, Color correctGreen) {
+  Widget _buildQuestionsList(List<TestsStudentQuestion> questions,
+      int currentQuestionIndex, Color primaryBlue, Color correctGreen) {
     return Container(
       height: 90,
       decoration: BoxDecoration(
@@ -617,12 +618,12 @@ class TestPageDetailsStudentBody extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      questions[index].questionType ==
-                          QuestionType2.trueOrFalse
+                      questions[index].type == 'TrueFalse' ||
+                              questions[index].type == 'true_false'
                           ? "صح/خطأ"
                           : questions[index].hasImage
-                          ? "صورة"
-                          : "اختيار",
+                              ? "صورة"
+                              : "اختيار",
                       style: TextStyle(
                         color: currentQuestionIndex == index
                             ? correctGreen

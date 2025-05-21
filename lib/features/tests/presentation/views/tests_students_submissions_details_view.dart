@@ -1,36 +1,36 @@
+import 'package:attendance_app/features/tests/data/models/student_tests_response.dart';
+import 'package:attendance_app/features/tests/presentation/viewmodels/tests_submissions_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
-import 'package:attendance_app/features/assignments/data/models/student_assignment_response.dart';
-import 'package:attendance_app/features/assignments/presentation/viewmodels/assignments_submissions_viewmodel.dart';
 import 'package:attendance_app/features/assignments/presentation/views/file_preview_view.dart';
 
-class StudentSubmissionDetailView extends StatefulWidget {
+class TestsStudentSubmissionDetailView extends StatefulWidget {
   final String adminId;
-  final String assignmentId;
-  final String assignmentTitle;
-  final StudentAssignmentSubmission submission;
+  final String testId;
+  final String testTitle;
+  final TestsStudentSubmission submission;
   final String courseName;
 
-  const StudentSubmissionDetailView({
+  const TestsStudentSubmissionDetailView({
     Key? key,
     required this.adminId,
-    required this.assignmentId,
-    required this.assignmentTitle,
+    required this.testId,
+    required this.testTitle,
     required this.submission,
     required this.courseName,
   }) : super(key: key);
 
   @override
-  State<StudentSubmissionDetailView> createState() =>
+  State<TestsStudentSubmissionDetailView> createState() =>
       _StudentSubmissionDetailViewState();
 }
 
 class _StudentSubmissionDetailViewState
-    extends State<StudentSubmissionDetailView> {
+    extends State<TestsStudentSubmissionDetailView> {
   int _currentQuestionIndex = 0;
   final _scoreController = TextEditingController();
   final _commentController = TextEditingController();
@@ -63,7 +63,7 @@ class _StudentSubmissionDetailViewState
     try {
       final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-      print('Fetching questions for assignment: ${widget.assignmentId}');
+      print('Fetching questions for test: ${widget.testId}');
 
       // First try to locate the course document
       final coursesRef = firestore.collection('Courses');
@@ -106,8 +106,8 @@ class _StudentSubmissionDetailViewState
 
       final assignmentRef = coursesRef
           .doc(courseDoc.id)
-          .collection('assignments')
-          .doc(widget.assignmentId);
+          .collection('tests')
+          .doc(widget.testId);
 
       final assignmentDoc = await assignmentRef.get();
 
@@ -134,7 +134,7 @@ class _StudentSubmissionDetailViewState
         // The assignment itself is a question
         print('Assignment document itself is a question');
 
-        String questionId = widget.assignmentId;
+        String questionId = widget.testId;
         questionDataMap[questionId] = assignmentData;
 
         // Handle options based on type
@@ -307,7 +307,7 @@ class _StudentSubmissionDetailViewState
             // Use index as ID if none provided
             final questionId = question['id'] as String? ??
                 question['questionId'] as String? ??
-                '${widget.assignmentId}_q$i';
+                '${widget.testId}_q$i';
 
             print('Processing question $i with ID: $questionId');
             print(
@@ -829,8 +829,8 @@ class _StudentSubmissionDetailViewState
           final submissionRef = FirebaseFirestore.instance
               .collection('Courses')
               .doc(widget.adminId)
-              .collection('assignments')
-              .doc(widget.assignmentId)
+              .collection('tests')
+              .doc(widget.testId)
               .collection('studentSubmits')
               .doc(widget.submission.studentId);
 
@@ -914,12 +914,12 @@ class _StudentSubmissionDetailViewState
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AssignmentSubmissionsViewModel(
+      create: (_) => TestsSubmissionsViewModel(
         adminId: widget.adminId,
-        assignmentId: widget.assignmentId,
+        testId: widget.testId,
         courseName: widget.courseName,
       ),
-      child: Consumer<AssignmentSubmissionsViewModel>(
+      child: Consumer<TestsSubmissionsViewModel>(
         builder: (context, viewModel, child) {
           // Handle success and error messages
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -986,7 +986,7 @@ class _StudentSubmissionDetailViewState
   }
 
   Widget _buildSubmissionDetailContent(
-      BuildContext context, AssignmentSubmissionsViewModel viewModel) {
+      BuildContext context, TestsSubmissionsViewModel viewModel) {
     if (widget.submission.responses.isEmpty) {
       return SingleChildScrollView(
         child: Column(
@@ -1096,7 +1096,7 @@ class _StudentSubmissionDetailViewState
                 children: [
                   Expanded(
                     child: Text(
-                      widget.assignmentTitle,
+                      widget.testTitle,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -1387,7 +1387,7 @@ class _StudentSubmissionDetailViewState
   }
 
   Widget _buildResponseDetail(
-      StudentResponse response, AssignmentSubmissionsViewModel viewModel) {
+      TestsStudentResponse response, TestsSubmissionsViewModel viewModel) {
     print(
         '📋 Question Type for ${response.questionId}: "${response.questionType}"');
 
@@ -1425,7 +1425,7 @@ class _StudentSubmissionDetailViewState
     }
   }
 
-  Widget _buildMultipleChoiceResponse(StudentResponse response) {
+  Widget _buildMultipleChoiceResponse(TestsStudentResponse response) {
     final selectedOption = response.selectedOption ?? -1;
     final correctOption = _correctAnswers[response.questionId] ?? -1;
     var isCorrect = response.isCorrect ?? false;
@@ -1772,7 +1772,7 @@ class _StudentSubmissionDetailViewState
     );
   }
 
-  Widget _buildTrueFalseResponse(StudentResponse response) {
+  Widget _buildTrueFalseResponse(TestsStudentResponse response) {
     final selectedOption = response.selectedOption ?? -1;
     final correctOption = _correctAnswers[response.questionId] ?? -1;
     final isCorrect = response.isCorrect ?? false;
@@ -2019,7 +2019,7 @@ class _StudentSubmissionDetailViewState
   }
 
   Widget _buildFileResponse(
-      StudentResponse response, AssignmentSubmissionsViewModel viewModel) {
+      TestsStudentResponse response, TestsSubmissionsViewModel viewModel) {
     final fileUrl = response.fileUrl;
     final fileName = response.fileName ?? 'Uploaded File';
     final isGraded = response.score != null;
@@ -2294,13 +2294,13 @@ class _StudentSubmissionDetailViewState
     }
   }
 
-  Future<void> _updateSubmissionScore(StudentResponse response) async {
+  Future<void> _updateSubmissionScore(TestsStudentResponse response) async {
     try {
       final submissionRef = FirebaseFirestore.instance
           .collection('Courses')
           .doc(widget.adminId)
-          .collection('assignments')
-          .doc(widget.assignmentId)
+          .collection('tests')
+          .doc(widget.testId)
           .collection('studentSubmits')
           .doc(widget.submission.studentId);
 

@@ -2189,29 +2189,87 @@ class _TestListItemState extends State<TestListItem> {
                       ],
 
                       // Bottom buttons for student
+                      // Padding(
+                      //   padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
+                      //   child: Column(
+                      //     children: [
+                      //       // Show "Review Submission" if completed, otherwise show "Open Assignment"
+                      //       if (!isDeadlinePassed) ...[
+                      //         Row(
+                      //           mainAxisAlignment: MainAxisAlignment.center,
+                      //           children: [
+                      //             Expanded(
+                      //               child: InkWell(
+                      //                 onTap: widget.test.isCompleted
+                      //                     ? widget.onViewSubmissions
+                      //                     : widget.onTap,
+                      //                 borderRadius: BorderRadius.circular(8),
+                      //                 child: Container(
+                      //                   padding: const EdgeInsets.symmetric(
+                      //                       vertical: 10),
+                      //                   decoration: BoxDecoration(
+                      //                     color: widget.test.isCompleted
+                      //                         ? Colors.green.shade50
+                      //                         : AppColors.primaryColor
+                      //                             .withOpacity(0.1),
+                      //                     borderRadius:
+                      //                         BorderRadius.circular(8),
+                      //                   ),
+                      //                   child: Row(
+                      //                     mainAxisAlignment:
+                      //                         MainAxisAlignment.center,
+                      //                     children: [
+                      //                       Icon(
+                      //                         widget.test.isCompleted
+                      //                             ? Icons.assignment_turned_in
+                      //                             : Icons.assignment_outlined,
+                      //                         size: 18,
+                      //                         color: widget.test.isCompleted
+                      //                             ? Colors.green.shade700
+                      //                             : AppColors.primaryColor,
+                      //                       ),
+                      //                       const SizedBox(width: 8),
+                      //                       Text(
+                      //                         widget.test.isCompleted
+                      //                             ? 'Review Submission'
+                      //                             : 'Open Assignment',
+                      //                         style: TextStyle(
+                      //                           color: widget.test.isCompleted
+                      //                               ? Colors.green.shade700
+                      //                               : AppColors.primaryColor,
+                      //                           fontWeight: FontWeight.w600,
+                      //                         ),
+                      //                       ),
+                      //                     ],
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ]
+                      //     ],
+                      //   ),
+                      // ),
+
                       Padding(
                         padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
                         child: Column(
                           children: [
-                            // Show "Review Submission" if completed, otherwise show "Open Assignment"
-                            if (!isDeadlinePassed) ...[
+                            // Show "Review Submission" if the test is completed, regardless of deadline
+                            if (widget.test.isCompleted) ...[
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Expanded(
                                     child: InkWell(
-                                      onTap: widget.test.isCompleted
-                                          ? widget.onViewSubmissions
-                                          : widget.onTap,
+                                      onTap: widget.onViewSubmissions,
                                       borderRadius: BorderRadius.circular(8),
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 10),
                                         decoration: BoxDecoration(
-                                          color: widget.test.isCompleted
-                                              ? Colors.green.shade50
-                                              : AppColors.primaryColor
-                                                  .withOpacity(0.1),
+                                          color: Colors.green.shade50,
                                           borderRadius:
                                               BorderRadius.circular(8),
                                         ),
@@ -2220,23 +2278,15 @@ class _TestListItemState extends State<TestListItem> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Icon(
-                                              widget.test.isCompleted
-                                                  ? Icons.assignment_turned_in
-                                                  : Icons.assignment_outlined,
+                                              Icons.assignment_turned_in,
                                               size: 18,
-                                              color: widget.test.isCompleted
-                                                  ? Colors.green.shade700
-                                                  : AppColors.primaryColor,
+                                              color: Colors.green.shade700,
                                             ),
                                             const SizedBox(width: 8),
                                             Text(
-                                              widget.test.isCompleted
-                                                  ? 'Review Submission'
-                                                  : 'Open Assignment',
+                                              'Review Submission',
                                               style: TextStyle(
-                                                color: widget.test.isCompleted
-                                                    ? Colors.green.shade700
-                                                    : AppColors.primaryColor,
+                                                color: Colors.green.shade700,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
@@ -2248,9 +2298,54 @@ class _TestListItemState extends State<TestListItem> {
                                 ],
                               ),
                             ]
+                            // Show "Open Assignment" only if the test is not completed and the deadline has not passed
+                            else if (!widget.test.isCompleted &&
+                                !isDeadlinePassed) ...[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: InkWell(
+                                      onTap: widget.onTap,
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryColor
+                                              .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.assignment_outlined,
+                                              size: 18,
+                                              color: AppColors.primaryColor,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'Open Assignment',
+                                              style: TextStyle(
+                                                color: AppColors.primaryColor,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            // If the test is not completed and the deadline has passed, no button will be shown
                           ],
                         ),
-                      ),
+                      )
                     ],
                   ),
                 ),
