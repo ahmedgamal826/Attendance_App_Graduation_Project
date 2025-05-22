@@ -232,7 +232,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class TestsStudentViewModel extends ChangeNotifier {
-  List<TestsTestsModel> _assignments = []; // Changed to TestsTestsModel
+  List<TestsTestsModel> _assignments = [];
   bool _isLoading = true;
   String _errorMessage = '';
   String _successMessage = '';
@@ -241,8 +241,7 @@ class TestsStudentViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  List<TestsTestsModel> get assignments =>
-      _assignments; // Changed to TestsTestsModel
+  List<TestsTestsModel> get assignments => _assignments;
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
   String get successMessage => _successMessage;
@@ -256,7 +255,7 @@ class TestsStudentViewModel extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      // Obtener ID del usuario actual
+      // Get current user ID
       final currentUser = _auth.currentUser;
 
       if (currentUser == null) {
@@ -266,7 +265,7 @@ class TestsStudentViewModel extends ChangeNotifier {
         return;
       }
 
-      // Obtener tests del curso
+      // Get tests for the course
       final snapshot = await _firestore
           .collection('Courses')
           .doc(courseId)
@@ -280,15 +279,15 @@ class TestsStudentViewModel extends ChangeNotifier {
         return;
       }
 
-      // Lista para almacenar las tests
-      List<TestsTestsModel> assignments = []; // Changed to TestsTestsModel
+      // List to store the tests
+      List<TestsTestsModel> assignments = [];
 
-      // Procesar cada test
+      // Process each test
       for (var doc in snapshot.docs) {
         final data = doc.data();
         final String testId = doc.id;
 
-        // Verificar si el estudiante ha completado este test
+        // Check if student has completed this test
         bool isCompleted = false;
         String score = 'No Degree';
 
@@ -311,18 +310,19 @@ class TestsStudentViewModel extends ChangeNotifier {
 
         // Create the test model
         assignments.add(TestsTestsModel(
-          // Changed to TestsTestsModel
           title: data['name'] ?? '',
           date: data['date'] ?? '',
           score: score,
           isCompleted: isCompleted,
-          deadline: data['deadline'],
+          examDate: data['examDate'],
+          startTime: data['startTime'],
+          endTime: data['endTime'],
           doctor: data['doctor'] ?? 'Unknown',
           version: data['version'] ?? 1,
         ));
       }
 
-      // Ordenar por fecha (más reciente primero)
+      // Sort by date (most recent first)
       assignments.sort((a, b) => b.date.compareTo(a.date));
 
       _assignments = assignments;
@@ -342,23 +342,23 @@ class TestsStudentViewModel extends ChangeNotifier {
   }
 
   Future<void> submitAssignment(String testId) async {
-    // Implementación para enviar un test
-    // Esta es una función básica que se puede expandir según necesidades
+    // Implementation for submitting a test
     try {
       _successMessage = 'Test submitted successfully';
       notifyListeners();
 
-      // Actualizar el estado isCompleted del test في القائمة المحلية
+      // Update the isCompleted status of the test in the local list
       final index = _assignments.indexWhere((a) => a.title == testId);
       if (index != -1) {
         final current = _assignments[index];
         _assignments[index] = TestsTestsModel(
-          // Changed to TestsTestsModel
           title: current.title,
           date: current.date,
           score: current.score,
           isCompleted: true,
-          deadline: current.deadline,
+          examDate: current.examDate,
+          startTime: current.startTime,
+          endTime: current.endTime,
           doctor: current.doctor,
           version: current.version,
         );
@@ -376,7 +376,7 @@ class TestsStudentViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Obtener ID del usuario actual
+      // Get current user ID
       final currentUser = _auth.currentUser;
 
       if (currentUser == null) {
@@ -386,7 +386,7 @@ class TestsStudentViewModel extends ChangeNotifier {
         return;
       }
 
-      // Obtener tests del curso
+      // Get tests for the course
       final snapshot = await _firestore
           .collection('Courses')
           .doc(courseId)
@@ -400,15 +400,15 @@ class TestsStudentViewModel extends ChangeNotifier {
         return;
       }
 
-      // Lista para almacenar las tests
-      List<TestsTestsModel> assignments = []; // Changed to TestsTestsModel
+      // List to store the tests
+      List<TestsTestsModel> assignments = [];
 
-      // Procesar cada test
+      // Process each test
       for (var doc in snapshot.docs) {
         final data = doc.data();
         final String testId = doc.id;
 
-        // Verificar si el estudiante ha completado este test
+        // Check if student has completed this test
         bool isCompleted = false;
         String score = 'No Degree';
 
@@ -432,18 +432,19 @@ class TestsStudentViewModel extends ChangeNotifier {
 
         // Create the test model
         assignments.add(TestsTestsModel(
-          // Changed to TestsTestsModel
           title: data['name'] ?? '',
           date: data['date'] ?? '',
           score: score,
           isCompleted: isCompleted,
-          deadline: data['deadline'],
+          examDate: data['examDate'],
+          startTime: data['startTime'],
+          endTime: data['endTime'],
           doctor: data['doctor'] ?? 'Unknown',
           version: data['version'] ?? 1,
         ));
       }
 
-      // Ordenar por fecha (más reciente primero)
+      // Sort by date (most recent first)
       assignments.sort((a, b) => b.date.compareTo(a.date));
 
       _assignments = assignments;

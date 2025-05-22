@@ -3,6 +3,7 @@
 // References updated from 'assignment' to 'test'
 
 import 'dart:io';
+import 'dart:async';
 import 'package:attendance_app/features/assignments/presentation/views/file_preview_view.dart';
 import 'package:attendance_app/features/tests/data/models/tests_question_model_student.dart';
 import 'package:attendance_app/features/tests/presentation/viewmodels/student_tests_detail_viewmodel.dart';
@@ -11,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:attendance_app/core/utils/app_colors.dart';
 import 'package:attendance_app/features/tests/presentation/viewmodels/student_tests_viewmodel.dart';
+import 'package:intl/intl.dart';
 
 class StudentTestDetailView extends StatefulWidget {
   final String courseId;
@@ -29,6 +31,137 @@ class StudentTestDetailView extends StatefulWidget {
 }
 
 class _StudentTestDetailViewState extends State<StudentTestDetailView> {
+  Timer? _timer;
+  String _remainingTime = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // We'll start the timer after the view model is initialized
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer(TestsStudentDetailViewModel viewModel) {
+    // Cancel any existing timer
+    _timer?.cancel();
+
+    // Start a new timer
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (mounted && viewModel.examDate != null && viewModel.endTime != null) {
+        final remainingTime =
+            _calculateRemainingTime(viewModel.examDate!, viewModel.endTime!);
+
+        setState(() {
+          _remainingTime = remainingTime;
+        });
+
+        // Auto-submit when time is up
+        if (remainingTime == 'Time is up!') {
+          timer.cancel(); // Stop the timer
+
+          // Show a notification about auto-submission
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Time is up! Your answers are being submitted. Unanswered questions will be marked as incorrect.'),
+                backgroundColor: Colors.orange,
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+
+          // Submit the test automatically
+          final success = await viewModel.submitAssignment(forceSubmit: true);
+
+          // Update the parent view model and navigate back
+          if (mounted) {
+            try {
+              final parentViewModel =
+                  Provider.of<TestsStudentViewModel>(context, listen: false);
+              await parentViewModel.refreshAssignments();
+            } catch (e) {
+              print("Could not refresh tests list: $e");
+            }
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                      'Test time expired. Your answers have been submitted.'),
+                  backgroundColor: Colors.red,
+                  duration: Duration(seconds: 3),
+                ),
+              );
+
+              // Navigate back to tests list
+              Navigator.pop(context);
+            }
+          }
+        }
+      }
+    });
+  }
+
+  String _formatTimeWithAMPM(String timeString) {
+    try {
+      // Parse the time in 24-hour format (HH:mm)
+      final timeParts = timeString.split(':');
+      if (timeParts.length != 2) {
+        return timeString;
+      }
+
+      int hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+
+      final period = hour >= 12 ? 'PM' : 'AM';
+      hour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+
+      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    } catch (e) {
+      print('Error formatting time with AM/PM: $timeString, Error: $e');
+      return timeString;
+    }
+  }
+
+  String _calculateRemainingTime(String examDate, String endTime) {
+    try {
+      final now = DateTime.now();
+      final date = DateFormat('dd-MM-yyyy').parseStrict(examDate);
+      final timeParts = endTime.split(':');
+
+      if (timeParts.length != 2) {
+        return 'Invalid time format';
+      }
+
+      final endDateTime = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        int.parse(timeParts[0]),
+        int.parse(timeParts[1]),
+      );
+
+      if (now.isAfter(endDateTime)) {
+        return 'Time is up!';
+      }
+
+      final difference = endDateTime.difference(now);
+      final hours = difference.inHours;
+      final minutes = difference.inMinutes % 60;
+      final seconds = difference.inSeconds % 60;
+
+      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return 'Error calculating time';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -38,6 +171,16 @@ class _StudentTestDetailViewState extends State<StudentTestDetailView> {
       ),
       child: Consumer<TestsStudentDetailViewModel>(
         builder: (context, viewModel, child) {
+          // Start timer when view model is loaded and has exam data
+          if (!viewModel.isLoading &&
+              viewModel.examDate != null &&
+              viewModel.endTime != null &&
+              _timer == null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _startTimer(viewModel);
+            });
+          }
+
           if (viewModel.successMessage.isNotEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -76,6 +219,31 @@ class _StudentTestDetailViewState extends State<StudentTestDetailView> {
               backgroundColor: AppColors.primaryColor,
               elevation: 0,
               centerTitle: true,
+              actions: [
+                if (viewModel.examDate != null && viewModel.endTime != null)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    margin: const EdgeInsets.only(right: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.timer, size: 18, color: Colors.white),
+                        const SizedBox(width: 4),
+                        Text(
+                          _remainingTime,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
             ),
             body: viewModel.isLoading
                 ? const Center(child: CircularProgressIndicator())

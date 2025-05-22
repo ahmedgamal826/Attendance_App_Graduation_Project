@@ -34,17 +34,166 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
     }
   }
 
-  String _calculateTimeRemaining(String deadlineString) {
+  String _formatExamDate(String dateString) {
     try {
-      final deadline =
-          DateFormat('dd-MM-yyyy HH:mm').parseStrict(deadlineString);
-      final now = DateTime.now();
+      final parsedDate = DateFormat('dd-MM-yyyy').parseStrict(dateString);
+      return DateFormat('dd MMM yyyy').format(parsedDate);
+    } catch (e) {
+      print('Error parsing exam date: $dateString, Error: $e');
+      return dateString;
+    }
+  }
 
-      if (deadline.isBefore(now)) {
-        return 'Deadline passed';
+  String _formatTimeWithAMPM(String timeString) {
+    try {
+      // Parse the time in 24-hour format (HH:mm)
+      final timeParts = timeString.split(':');
+      if (timeParts.length != 2) {
+        return timeString;
       }
 
-      final difference = deadline.difference(now);
+      int hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+
+      final period = hour >= 12 ? 'PM' : 'AM';
+      hour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+
+      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    } catch (e) {
+      print('Error formatting time with AM/PM: $timeString, Error: $e');
+      return timeString;
+    }
+  }
+
+  bool isTestActive() {
+    if (widget.test.examDate == null ||
+        widget.test.startTime == null ||
+        widget.test.endTime == null) {
+      return false;
+    }
+
+    try {
+      final now = DateTime.now();
+      final examDate =
+          DateFormat('dd-MM-yyyy').parseStrict(widget.test.examDate!);
+      final startTimeParts = widget.test.startTime!.split(':');
+      final endTimeParts = widget.test.endTime!.split(':');
+
+      if (startTimeParts.length != 2 || endTimeParts.length != 2) {
+        return false;
+      }
+
+      final startDateTime = DateTime(
+        examDate.year,
+        examDate.month,
+        examDate.day,
+        int.parse(startTimeParts[0]),
+        int.parse(startTimeParts[1]),
+      );
+
+      final endDateTime = DateTime(
+        examDate.year,
+        examDate.month,
+        examDate.day,
+        int.parse(endTimeParts[0]),
+        int.parse(endTimeParts[1]),
+      );
+
+      return now.isAfter(startDateTime) && now.isBefore(endDateTime);
+    } catch (e) {
+      print('Error checking if test is active: $e');
+      return false;
+    }
+  }
+
+  bool isTestExpired() {
+    if (widget.test.examDate == null || widget.test.endTime == null) {
+      return false;
+    }
+
+    try {
+      final now = DateTime.now();
+      final examDate =
+          DateFormat('dd-MM-yyyy').parseStrict(widget.test.examDate!);
+      final endTimeParts = widget.test.endTime!.split(':');
+
+      if (endTimeParts.length != 2) {
+        return false;
+      }
+
+      final endDateTime = DateTime(
+        examDate.year,
+        examDate.month,
+        examDate.day,
+        int.parse(endTimeParts[0]),
+        int.parse(endTimeParts[1]),
+      );
+
+      return now.isAfter(endDateTime);
+    } catch (e) {
+      print('Error checking if test is expired: $e');
+      return false;
+    }
+  }
+
+  bool isTestScheduled() {
+    if (widget.test.examDate == null || widget.test.startTime == null) {
+      return false;
+    }
+
+    try {
+      final now = DateTime.now();
+      final examDate =
+          DateFormat('dd-MM-yyyy').parseStrict(widget.test.examDate!);
+      final startTimeParts = widget.test.startTime!.split(':');
+
+      if (startTimeParts.length != 2) {
+        return false;
+      }
+
+      final startDateTime = DateTime(
+        examDate.year,
+        examDate.month,
+        examDate.day,
+        int.parse(startTimeParts[0]),
+        int.parse(startTimeParts[1]),
+      );
+
+      return now.isBefore(startDateTime);
+    } catch (e) {
+      print('Error checking if test is scheduled: $e');
+      return false;
+    }
+  }
+
+  String _calculateTimeRemaining() {
+    if (widget.test.examDate == null || widget.test.startTime == null) {
+      return '';
+    }
+
+    try {
+      final now = DateTime.now();
+      final examDate =
+          DateFormat('dd-MM-yyyy').parseStrict(widget.test.examDate!);
+      final startTimeParts = widget.test.startTime!.split(':');
+
+      if (startTimeParts.length != 2) {
+        return '';
+      }
+
+      final startDateTime = DateTime(
+        examDate.year,
+        examDate.month,
+        examDate.day,
+        int.parse(startTimeParts[0]),
+        int.parse(startTimeParts[1]),
+      );
+
+      if (startDateTime.isBefore(now)) {
+        return '';
+      }
+
+      final difference = startDateTime.difference(now);
 
       if (difference.inDays > 0) {
         return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} left';
@@ -54,6 +203,7 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
         return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} left';
       }
     } catch (e) {
+      print('Error calculating time remaining: $e');
       return '';
     }
   }
@@ -61,24 +211,18 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
   @override
   Widget build(BuildContext context) {
     final String createdDate = _formatDate(widget.test.date);
-    final String? deadlineDate = widget.test.deadline != null
-        ? _formatDate(widget.test.deadline!)
-        : null;
+    final bool isExpired = isTestExpired();
+    final bool isActive = isTestActive();
+    final bool isScheduled = isTestScheduled();
+    final String timeRemaining = _calculateTimeRemaining();
 
-    bool isDeadlinePassed = false;
-    String timeRemaining = '';
-    if (widget.test.deadline != null) {
-      try {
-        final deadline =
-            DateFormat('dd-MM-yyyy HH:mm').parseStrict(widget.test.deadline!);
-        isDeadlinePassed = deadline.isBefore(DateTime.now());
-        if (!isDeadlinePassed) {
-          timeRemaining = _calculateTimeRemaining(widget.test.deadline!);
-        }
-      } catch (e) {
-        print('Error parsing deadline: ${widget.test.deadline}, Error: $e');
-      }
-    }
+    // Format start and end times with AM/PM
+    final String startTimeFormatted = widget.test.startTime != null
+        ? _formatTimeWithAMPM(widget.test.startTime!)
+        : '';
+    final String endTimeFormatted = widget.test.endTime != null
+        ? _formatTimeWithAMPM(widget.test.endTime!)
+        : '';
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovering = true),
@@ -170,9 +314,11 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                               decoration: BoxDecoration(
                                 color: widget.test.isCompleted
                                     ? Colors.green.withOpacity(0.9)
-                                    : (deadlineDate != null && isDeadlinePassed
+                                    : isExpired
                                         ? Colors.red.withOpacity(0.9)
-                                        : Colors.amber.withOpacity(0.9)),
+                                        : isActive
+                                            ? Colors.green.withOpacity(0.9)
+                                            : Colors.amber.withOpacity(0.9),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: widget.test.isCompleted
@@ -185,9 +331,9 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                                           size: 16,
                                         ),
                                         const SizedBox(width: 4),
-                                        Text(
+                                        const Text(
                                           'Completed',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,
@@ -196,9 +342,11 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                                       ],
                                     )
                                   : Text(
-                                      (deadlineDate != null && isDeadlinePassed
+                                      isExpired
                                           ? 'Expired'
-                                          : 'Pending'),
+                                          : isActive
+                                              ? 'Active'
+                                              : 'Scheduled',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -373,7 +521,7 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                           ],
                         ),
                       ),
-                      if (deadlineDate != null) ...[
+                      if (widget.test.examDate != null) ...[
                         const SizedBox(height: 14),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -387,16 +535,20 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                                     Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: isDeadlinePassed
+                                        color: isExpired
                                             ? Colors.red.shade50
-                                            : Colors.green.shade50,
+                                            : isActive
+                                                ? Colors.green.shade50
+                                                : Colors.orange.shade50,
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Icon(
-                                        Icons.timer_outlined,
-                                        color: isDeadlinePassed
+                                        Icons.event,
+                                        color: isExpired
                                             ? Colors.red.shade700
-                                            : Colors.green.shade700,
+                                            : isActive
+                                                ? Colors.green.shade700
+                                                : Colors.orange.shade700,
                                         size: 20,
                                       ),
                                     ),
@@ -407,7 +559,7 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           const Text(
-                                            'Deadline',
+                                            'Exam Date',
                                             style: TextStyle(
                                               fontSize: 13,
                                               color: Colors.grey,
@@ -416,20 +568,22 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                                           ),
                                           const SizedBox(height: 3),
                                           Text(
-                                            deadlineDate,
+                                            _formatExamDate(
+                                                widget.test.examDate!),
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
-                                              color: isDeadlinePassed
+                                              color: isExpired
                                                   ? Colors.red.shade700
-                                                  : Colors.green.shade700,
+                                                  : isActive
+                                                      ? Colors.green.shade700
+                                                      : Colors.orange.shade700,
                                             ),
                                             overflow: _expanded
                                                 ? TextOverflow.visible
                                                 : TextOverflow.ellipsis,
                                           ),
-                                          if (!isDeadlinePassed &&
-                                              timeRemaining.isNotEmpty) ...[
+                                          if (timeRemaining.isNotEmpty) ...[
                                             const SizedBox(height: 5),
                                             Container(
                                               padding:
@@ -437,7 +591,7 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                                                       horizontal: 8,
                                                       vertical: 3),
                                               decoration: BoxDecoration(
-                                                color: Colors.green.shade100,
+                                                color: Colors.orange.shade100,
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
@@ -446,7 +600,7 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                                                 style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600,
-                                                  color: Colors.green.shade700,
+                                                  color: Colors.orange.shade700,
                                                 ),
                                               ),
                                             ),
@@ -461,68 +615,78 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                           ),
                         ),
                       ],
-                      // Padding(
-                      //   padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
-                      //   child: Column(
-                      //     children: [
-                      //       if (!isDeadlinePassed) ...[
-                      //         Row(
-                      //           mainAxisAlignment: MainAxisAlignment.center,
-                      //           children: [
-                      //             Expanded(
-                      //               child: InkWell(
-                      //                 onTap: widget.test.isCompleted
-                      //                     ? widget.onViewSubmissions
-                      //                     : widget.onTap,
-                      //                 borderRadius: BorderRadius.circular(8),
-                      //                 child: Container(
-                      //                   padding: const EdgeInsets.symmetric(
-                      //                       vertical: 10),
-                      //                   decoration: BoxDecoration(
-                      //                     color: widget.test.isCompleted
-                      //                         ? Colors.green.shade50
-                      //                         : AppColors.primaryColor
-                      //                             .withOpacity(0.1),
-                      //                     borderRadius:
-                      //                         BorderRadius.circular(8),
-                      //                   ),
-                      //                   child: Row(
-                      //                     mainAxisAlignment:
-                      //                         MainAxisAlignment.center,
-                      //                     children: [
-                      //                       Icon(
-                      //                         widget.test.isCompleted
-                      //                             ? Icons.assignment_turned_in
-                      //                             : Icons.assignment_outlined,
-                      //                         size: 18,
-                      //                         color: widget.test.isCompleted
-                      //                             ? Colors.green.shade700
-                      //                             : AppColors.primaryColor,
-                      //                       ),
-                      //                       const SizedBox(width: 8),
-                      //                       Text(
-                      //                         widget.test.isCompleted
-                      //                             ? 'Review Submission'
-                      //                             : 'Open Test',
-                      //                         style: TextStyle(
-                      //                           color: widget.test.isCompleted
-                      //                               ? Colors.green.shade700
-                      //                               : AppColors.primaryColor,
-                      //                           fontWeight: FontWeight.w600,
-                      //                         ),
-                      //                       ),
-                      //                     ],
-                      //                   ),
-                      //                 ),
-                      //               ),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ]
-                      //     ],
-                      //   ),
-                      // ),
-
+                      if (widget.test.startTime != null &&
+                          widget.test.endTime != null) ...[
+                        const SizedBox(height: 14),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: isExpired
+                                            ? Colors.red.shade50
+                                            : isActive
+                                                ? Colors.green.shade50
+                                                : Colors.blue.shade50,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Icon(
+                                        Icons.access_time,
+                                        color: isExpired
+                                            ? Colors.red.shade700
+                                            : isActive
+                                                ? Colors.green.shade700
+                                                : Colors.blue.shade700,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Test Time',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.grey,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 3),
+                                          Text(
+                                            '$startTimeFormatted - $endTimeFormatted',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: isExpired
+                                                  ? Colors.red.shade700
+                                                  : isActive
+                                                      ? Colors.green.shade700
+                                                      : Colors.blue.shade700,
+                                            ),
+                                            overflow: _expanded
+                                                ? TextOverflow.visible
+                                                : TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       Padding(
                         padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
                         child: Column(
@@ -569,9 +733,8 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                                 ],
                               ),
                             ]
-                            // Show "Open Test" only if the test is not completed and the deadline has not passed
-                            else if (!widget.test.isCompleted &&
-                                !isDeadlinePassed) ...[
+                            // Show "Open Test" only if the test is active and not completed
+                            else if (!widget.test.isCompleted && isActive) ...[
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -613,7 +776,26 @@ class TestsListItemStudentState extends State<TestsListItemStudent> {
                                 ],
                               ),
                             ],
-                            // If the test is not completed and the deadline has passed, no button will be shown
+                            // If the test is scheduled or expired and not completed, show appropriate message
+                            if (!widget.test.isCompleted && !isActive) ...[
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: Center(
+                                  child: Text(
+                                    isExpired
+                                        ? 'Test Expired'
+                                        : 'Test not yet active',
+                                    style: TextStyle(
+                                      color: isExpired
+                                          ? Colors.red.shade700
+                                          : Colors.orange.shade700,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       )

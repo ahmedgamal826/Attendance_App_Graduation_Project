@@ -6,7 +6,9 @@ class TestsAssignmentModel {
   final String date;
   final String doctor;
   final int version;
-  final String? deadline;
+  final String? examDate;
+  final String? startTime;
+  final String? endTime;
 
   TestsAssignmentModel({
     required this.name,
@@ -14,7 +16,9 @@ class TestsAssignmentModel {
     required this.date,
     required this.doctor,
     this.version = 1,
-    this.deadline,
+    this.examDate,
+    this.startTime,
+    this.endTime,
   });
 
   factory TestsAssignmentModel.fromMap(Map<String, dynamic> map) {
@@ -26,7 +30,9 @@ class TestsAssignmentModel {
       date: map['date'] ?? '',
       doctor: map['doctor'] ?? '',
       version: map['version'] as int? ?? 1,
-      deadline: map['deadline'],
+      examDate: map['examDate'],
+      startTime: map['startTime'],
+      endTime: map['endTime'],
     );
   }
 
@@ -37,7 +43,9 @@ class TestsAssignmentModel {
       'date': date,
       'doctor': doctor,
       'version': version,
-      'deadline': deadline,
+      'examDate': examDate,
+      'startTime': startTime,
+      'endTime': endTime,
     };
   }
 }

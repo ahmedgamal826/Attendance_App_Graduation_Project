@@ -110,7 +110,7 @@ class TestsHomeViewModel extends ChangeNotifier {
 
   Future<TestsAssignmentModel> addAssignment(
       String name, List<TestsQuestionModel> questions,
-      {String? deadline}) async {
+      {String? examDate, String? startTime, String? endTime}) async {
     _isProcessing = true;
     _errorMessage = '';
     _successMessage = '';
@@ -129,7 +129,9 @@ class TestsHomeViewModel extends ChangeNotifier {
         date: formattedDate,
         doctor: doctorName,
         version: 1,
-        deadline: deadline,
+        examDate: examDate,
+        startTime: startTime,
+        endTime: endTime,
       );
 
       await _firestore
@@ -157,7 +159,7 @@ class TestsHomeViewModel extends ChangeNotifier {
 
   Future<void> updateAssignment(
       String assignmentId, List<TestsQuestionModel> updatedQuestions,
-      {String? deadline}) async {
+      {String? examDate, String? startTime, String? endTime}) async {
     _isProcessing = true;
     _errorMessage = '';
     _successMessage = '';
@@ -174,9 +176,9 @@ class TestsHomeViewModel extends ChangeNotifier {
           date: currentAssignment.date,
           doctor: currentAssignment.doctor,
           version: currentAssignment.version + 1, // Increment version
-          deadline: deadline ??
-              currentAssignment
-                  .deadline, // Keep existing deadline if not provided
+          examDate: examDate ?? currentAssignment.examDate,
+          startTime: startTime ?? currentAssignment.startTime,
+          endTime: endTime ?? currentAssignment.endTime,
         );
 
         await _firestore
@@ -202,7 +204,10 @@ class TestsHomeViewModel extends ChangeNotifier {
   }
 
   Future<void> updateAssignmentDetails(String assignmentId,
-      {required String newName, String? deadline}) async {
+      {required String newName,
+      String? examDate,
+      String? startTime,
+      String? endTime}) async {
     _isProcessing = true;
     _errorMessage = '';
     _successMessage = '';
@@ -213,15 +218,16 @@ class TestsHomeViewModel extends ChangeNotifier {
       if (index != -1) {
         final currentAssignment = _assignments[index];
 
-        // Create updated assignment with new name and/or deadline
+        // Create updated assignment with new details
         final updatedAssignment = TestsAssignmentModel(
           name: newName,
           questions: currentAssignment.questions,
           date: currentAssignment.date,
           doctor: currentAssignment.doctor,
           version: currentAssignment.version + 1, // Increment version
-          deadline: deadline ??
-              currentAssignment.deadline, // Update deadline if provided
+          examDate: examDate ?? currentAssignment.examDate,
+          startTime: startTime ?? currentAssignment.startTime,
+          endTime: endTime ?? currentAssignment.endTime,
         );
 
         // If the name has changed, we need to delete the old document and create a new one
@@ -252,7 +258,7 @@ class TestsHomeViewModel extends ChangeNotifier {
           // Commit the batch
           await batch.commit();
         } else {
-          // Just update the existing document with new deadline
+          // Just update the existing document with new details
           await _firestore
               .collection('Courses')
               .doc(courseId)

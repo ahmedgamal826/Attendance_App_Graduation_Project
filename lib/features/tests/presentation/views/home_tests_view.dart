@@ -16,6 +16,20 @@ class HomeTestsView extends StatelessWidget {
 
   const HomeTestsView({Key? key, required this.courseId}) : super(key: key);
 
+  // Helper method to format time with AM/PM
+  String _formatTimeWithAMPM(TimeOfDay timeOfDay) {
+    final now = DateTime.now();
+    final dateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      timeOfDay.hour,
+      timeOfDay.minute,
+    );
+
+    return DateFormat('hh:mm a').format(dateTime);
+  }
+
   void _deleteTest(
       BuildContext context, TestsHomeViewModel viewModel, int index) {
     AwesomeDialog(
@@ -36,8 +50,12 @@ class HomeTestsView extends StatelessWidget {
 
   void _showAddTestDialog(BuildContext context, TestsHomeViewModel viewModel) {
     String newTestName = '';
-    DateTime? selectedDeadline;
-    TextEditingController deadlineController = TextEditingController();
+    DateTime? selectedExamDate;
+    TimeOfDay? selectedStartTime;
+    TimeOfDay? selectedEndTime;
+    TextEditingController examDateController = TextEditingController();
+    TextEditingController startTimeController = TextEditingController();
+    TextEditingController endTimeController = TextEditingController();
 
     showDialog(
       context: context,
@@ -83,10 +101,10 @@ class HomeTestsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 TextField(
-                  controller: deadlineController,
+                  controller: examDateController,
                   readOnly: true,
                   decoration: InputDecoration(
-                    hintText: 'Select deadline (optional)',
+                    hintText: 'Select exam date',
                     filled: true,
                     fillColor: Colors.grey.shade50,
                     border: OutlineInputBorder(
@@ -107,7 +125,7 @@ class HomeTestsView extends StatelessWidget {
                     // Show date picker
                     final DateTime? pickedDate = await showDatePicker(
                       context: context,
-                      initialDate: DateTime.now().add(const Duration(days: 7)),
+                      initialDate: DateTime.now().add(const Duration(days: 1)),
                       firstDate: DateTime.now(),
                       lastDate: DateTime.now().add(const Duration(days: 365)),
                       builder: (context, child) {
@@ -123,37 +141,102 @@ class HomeTestsView extends StatelessWidget {
                     );
 
                     if (pickedDate != null) {
-                      // Show time picker
-                      final TimeOfDay? pickedTime = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                        builder: (context, child) {
-                          return Theme(
-                            data: Theme.of(context).copyWith(
-                              colorScheme: const ColorScheme.light(
-                                primary: AppColors.primaryColor,
-                              ),
+                      selectedExamDate = pickedDate;
+                      examDateController.text =
+                          DateFormat('dd-MM-yyyy').format(selectedExamDate!);
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: startTimeController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    hintText: 'Select start time',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: AppColors.primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                    prefixIcon: const Icon(Icons.access_time,
+                        color: AppColors.primaryColor),
+                  ),
+                  onTap: () async {
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.light(
+                              primary: AppColors.primaryColor,
                             ),
-                            child: child!,
-                          );
-                        },
-                      );
-
-                      if (pickedTime != null) {
-                        // Combine date and time
-                        selectedDeadline = DateTime(
-                          pickedDate.year,
-                          pickedDate.month,
-                          pickedDate.day,
-                          pickedTime.hour,
-                          pickedTime.minute,
+                          ),
+                          child: child!,
                         );
+                      },
+                    );
 
-                        // Format the deadline for display
-                        deadlineController.text =
-                            DateFormat('dd-MM-yyyy h:mm a')
-                                .format(selectedDeadline!);
-                      }
+                    if (pickedTime != null) {
+                      selectedStartTime = pickedTime;
+                      startTimeController.text =
+                          _formatTimeWithAMPM(pickedTime);
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: endTimeController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    hintText: 'Select end time',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: AppColors.primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                    prefixIcon: const Icon(Icons.access_time,
+                        color: AppColors.primaryColor),
+                  ),
+                  onTap: () async {
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: selectedStartTime != null
+                          ? TimeOfDay(
+                              hour: (selectedStartTime!.hour + 1) % 24,
+                              minute: selectedStartTime!.minute)
+                          : TimeOfDay.now(),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.light(
+                              primary: AppColors.primaryColor,
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+
+                    if (pickedTime != null) {
+                      selectedEndTime = pickedTime;
+                      endTimeController.text = _formatTimeWithAMPM(pickedTime);
                     }
                   },
                 ),
@@ -176,13 +259,31 @@ class HomeTestsView extends StatelessWidget {
               onPressed: () {
                 if (newTestName.isNotEmpty) {
                   Navigator.pop(context);
-                  String? formattedDeadline;
-                  if (selectedDeadline != null) {
-                    formattedDeadline = DateFormat('dd-MM-yyyy HH:mm')
-                        .format(selectedDeadline!);
+
+                  String? formattedExamDate;
+                  String? formattedStartTime;
+                  String? formattedEndTime;
+
+                  if (selectedExamDate != null) {
+                    formattedExamDate =
+                        DateFormat('dd-MM-yyyy').format(selectedExamDate!);
                   }
+
+                  if (selectedStartTime != null) {
+                    formattedStartTime =
+                        '${selectedStartTime!.hour.toString().padLeft(2, '0')}:${selectedStartTime!.minute.toString().padLeft(2, '0')}';
+                  }
+
+                  if (selectedEndTime != null) {
+                    formattedEndTime =
+                        '${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')}';
+                  }
+
                   _addOrUpdateTest(context, viewModel,
-                      name: newTestName, deadline: formattedDeadline);
+                      name: newTestName,
+                      examDate: formattedExamDate,
+                      startTime: formattedStartTime,
+                      endTime: formattedEndTime);
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -205,7 +306,9 @@ class HomeTestsView extends StatelessWidget {
       {List<Map<String, dynamic>> initialQuestions = const [],
       String? testId,
       String? name,
-      String? deadline}) async {
+      String? examDate,
+      String? startTime,
+      String? endTime}) async {
     final newQuestions = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -226,10 +329,11 @@ class HomeTestsView extends StatelessWidget {
           .toList();
 
       if (testId == null) {
-        await viewModel.addAssignment(name!, questionsList, deadline: deadline);
+        await viewModel.addAssignment(name!, questionsList,
+            examDate: examDate, startTime: startTime, endTime: endTime);
       } else {
         await viewModel.updateAssignment(testId, questionsList,
-            deadline: deadline);
+            examDate: examDate, startTime: startTime, endTime: endTime);
       }
     } catch (e) {
       print('Error in _addOrUpdateTest: $e');
@@ -239,21 +343,57 @@ class HomeTestsView extends StatelessWidget {
   void _showEditTestDialog(BuildContext context, TestsHomeViewModel viewModel,
       TestsAssignmentModel test) {
     String newTestName = test.name;
-    DateTime? selectedDeadline;
+    DateTime? selectedExamDate;
+    TimeOfDay? selectedStartTime;
+    TimeOfDay? selectedEndTime;
     TextEditingController nameController =
         TextEditingController(text: test.name);
-    TextEditingController deadlineController = TextEditingController();
+    TextEditingController examDateController = TextEditingController();
+    TextEditingController startTimeController = TextEditingController();
+    TextEditingController endTimeController = TextEditingController();
 
-    // Initialize the deadline controller if a deadline exists
-    if (test.deadline != null) {
+    // Initialize the exam date controller if an exam date exists
+    if (test.examDate != null) {
       try {
-        final parsedDate =
-            DateFormat('dd-MM-yyyy HH:mm').parseStrict(test.deadline!);
-        selectedDeadline = parsedDate;
-        deadlineController.text =
-            DateFormat('dd-MM-yyyy h:mm a').format(parsedDate);
+        final parsedDate = DateFormat('dd-MM-yyyy').parseStrict(test.examDate!);
+        selectedExamDate = parsedDate;
+        examDateController.text = DateFormat('dd-MM-yyyy').format(parsedDate);
       } catch (e) {
-        print('Error parsing date: ${test.deadline}, Error: $e');
+        print('Error parsing date: ${test.examDate}, Error: $e');
+      }
+    }
+
+    // Initialize the start time controller if a start time exists
+    if (test.startTime != null) {
+      try {
+        final parts = test.startTime!.split(':');
+        if (parts.length == 2) {
+          selectedStartTime = TimeOfDay(
+            hour: int.parse(parts[0]),
+            minute: int.parse(parts[1]),
+          );
+          startTimeController.text =
+              '${selectedStartTime!.hour.toString().padLeft(2, '0')}:${selectedStartTime!.minute.toString().padLeft(2, '0')}';
+        }
+      } catch (e) {
+        print('Error parsing start time: ${test.startTime}, Error: $e');
+      }
+    }
+
+    // Initialize the end time controller if an end time exists
+    if (test.endTime != null) {
+      try {
+        final parts = test.endTime!.split(':');
+        if (parts.length == 2) {
+          selectedEndTime = TimeOfDay(
+            hour: int.parse(parts[0]),
+            minute: int.parse(parts[1]),
+          );
+          endTimeController.text =
+              '${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')}';
+        }
+      } catch (e) {
+        print('Error parsing end time: ${test.endTime}, Error: $e');
       }
     }
 
@@ -305,10 +445,10 @@ class HomeTestsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 TextField(
-                  controller: deadlineController,
+                  controller: examDateController,
                   readOnly: true,
                   decoration: InputDecoration(
-                    labelText: 'Deadline',
+                    labelText: 'Exam Date',
                     filled: true,
                     fillColor: Colors.grey.shade50,
                     border: OutlineInputBorder(
@@ -327,15 +467,14 @@ class HomeTestsView extends StatelessWidget {
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.clear, color: Colors.grey),
                       onPressed: () {
-                        deadlineController.clear();
-                        selectedDeadline = null;
+                        examDateController.clear();
+                        selectedExamDate = null;
                       },
                     ),
                   ),
                   onTap: () async {
-                    // Show date picker
-                    final initialDate = selectedDeadline ??
-                        DateTime.now().add(const Duration(days: 7));
+                    final initialDate = selectedExamDate ??
+                        DateTime.now().add(const Duration(days: 1));
 
                     final DateTime? pickedDate = await showDatePicker(
                       context: context,
@@ -355,43 +494,117 @@ class HomeTestsView extends StatelessWidget {
                     );
 
                     if (pickedDate != null) {
-                      // Show time picker
-                      final initialTime = selectedDeadline != null
-                          ? TimeOfDay(
-                              hour: selectedDeadline!.hour,
-                              minute: selectedDeadline!.minute)
-                          : TimeOfDay.now();
-
-                      final TimeOfDay? pickedTime = await showTimePicker(
-                        context: context,
-                        initialTime: initialTime,
-                        builder: (context, child) {
-                          return Theme(
-                            data: Theme.of(context).copyWith(
-                              colorScheme: const ColorScheme.light(
-                                primary: AppColors.primaryColor,
-                              ),
+                      selectedExamDate = pickedDate;
+                      examDateController.text =
+                          DateFormat('dd-MM-yyyy').format(selectedExamDate!);
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: startTimeController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: 'Start Time',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: AppColors.primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                    prefixIcon: const Icon(Icons.access_time,
+                        color: AppColors.primaryColor),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.grey),
+                      onPressed: () {
+                        startTimeController.clear();
+                        selectedStartTime = null;
+                      },
+                    ),
+                  ),
+                  onTap: () async {
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: selectedStartTime ?? TimeOfDay.now(),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.light(
+                              primary: AppColors.primaryColor,
                             ),
-                            child: child!,
-                          );
-                        },
-                      );
-
-                      if (pickedTime != null) {
-                        // Combine date and time
-                        selectedDeadline = DateTime(
-                          pickedDate.year,
-                          pickedDate.month,
-                          pickedDate.day,
-                          pickedTime.hour,
-                          pickedTime.minute,
+                          ),
+                          child: child!,
                         );
+                      },
+                    );
 
-                        // Format the deadline for display
-                        deadlineController.text =
-                            DateFormat('dd-MM-yyyy h:mm a')
-                                .format(selectedDeadline!);
-                      }
+                    if (pickedTime != null) {
+                      selectedStartTime = pickedTime;
+                      startTimeController.text =
+                          _formatTimeWithAMPM(pickedTime);
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: endTimeController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: 'End Time',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: AppColors.primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                    prefixIcon: const Icon(Icons.access_time,
+                        color: AppColors.primaryColor),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.grey),
+                      onPressed: () {
+                        endTimeController.clear();
+                        selectedEndTime = null;
+                      },
+                    ),
+                  ),
+                  onTap: () async {
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: selectedEndTime ??
+                          (selectedStartTime != null
+                              ? TimeOfDay(
+                                  hour: (selectedStartTime!.hour + 1) % 24,
+                                  minute: selectedStartTime!.minute)
+                              : TimeOfDay.now()),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.light(
+                              primary: AppColors.primaryColor,
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+
+                    if (pickedTime != null) {
+                      selectedEndTime = pickedTime;
+                      endTimeController.text = _formatTimeWithAMPM(pickedTime);
                     }
                   },
                 ),
@@ -411,20 +624,35 @@ class HomeTestsView extends StatelessWidget {
                 if (newTestName.isNotEmpty) {
                   Navigator.pop(context);
 
-                  // Format deadline for storage
-                  String? formattedDeadline;
-                  if (selectedDeadline != null) {
-                    formattedDeadline = DateFormat('dd-MM-yyyy HH:mm')
-                        .format(selectedDeadline!);
+                  // Format values for storage
+                  String? formattedExamDate;
+                  String? formattedStartTime;
+                  String? formattedEndTime;
+
+                  if (selectedExamDate != null) {
+                    formattedExamDate =
+                        DateFormat('dd-MM-yyyy').format(selectedExamDate!);
                   }
 
-                  // Update test with new name and deadline
+                  if (selectedStartTime != null) {
+                    formattedStartTime =
+                        '${selectedStartTime!.hour.toString().padLeft(2, '0')}:${selectedStartTime!.minute.toString().padLeft(2, '0')}';
+                  }
+
+                  if (selectedEndTime != null) {
+                    formattedEndTime =
+                        '${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')}';
+                  }
+
+                  // Update test with new details
                   _updateTestDetails(
                     context,
                     viewModel,
                     test,
                     newName: newTestName,
-                    newDeadline: formattedDeadline,
+                    newExamDate: formattedExamDate,
+                    newStartTime: formattedStartTime,
+                    newEndTime: formattedEndTime,
                   );
                 }
               },
@@ -445,12 +673,17 @@ class HomeTestsView extends StatelessWidget {
 
   Future<void> _updateTestDetails(BuildContext context,
       TestsHomeViewModel viewModel, TestsAssignmentModel test,
-      {required String newName, String? newDeadline}) async {
+      {required String newName,
+      String? newExamDate,
+      String? newStartTime,
+      String? newEndTime}) async {
     try {
       await viewModel.updateAssignmentDetails(
         test.name,
         newName: newName,
-        deadline: newDeadline,
+        examDate: newExamDate,
+        startTime: newStartTime,
+        endTime: newEndTime,
       );
     } catch (e) {
       print('Error updating test details: $e');
@@ -464,6 +697,9 @@ class HomeTestsView extends StatelessWidget {
       viewModel,
       initialQuestions: test.questions.map((q) => q.toMap()).toList(),
       testId: test.name,
+      examDate: test.examDate,
+      startTime: test.startTime,
+      endTime: test.endTime,
     );
   }
 

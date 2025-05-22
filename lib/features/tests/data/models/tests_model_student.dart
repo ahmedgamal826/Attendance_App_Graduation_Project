@@ -3,7 +3,9 @@ class TestsTestsModel {
   final String date;
   final String score;
   final bool isCompleted;
-  final String? deadline;
+  final String? examDate;
+  final String? startTime;
+  final String? endTime;
   final String doctor;
   final int version;
 
@@ -12,7 +14,9 @@ class TestsTestsModel {
     required this.date,
     required this.score,
     required this.isCompleted,
-    this.deadline,
+    this.examDate,
+    this.startTime,
+    this.endTime,
     this.doctor = 'Unknown',
     this.version = 1,
   });
@@ -23,7 +27,9 @@ class TestsTestsModel {
       date: json['date'] ?? '',
       score: json['score'] ?? 'No Degree',
       isCompleted: json['isCompleted'] ?? false,
-      deadline: json['deadline'],
+      examDate: json['examDate'],
+      startTime: json['startTime'],
+      endTime: json['endTime'],
       doctor: json['doctor'] ?? 'Unknown',
       version: json['version'] ?? 1,
     );
@@ -35,7 +41,9 @@ class TestsTestsModel {
       'date': date,
       'score': score,
       'isCompleted': isCompleted,
-      'deadline': deadline,
+      'examDate': examDate,
+      'startTime': startTime,
+      'endTime': endTime,
       'doctor': doctor,
       'version': version,
     };
@@ -47,7 +55,9 @@ class TestsTestsModel {
       date: adminModel['date'] ?? '',
       score: 'No Degree',
       isCompleted: false,
-      deadline: adminModel['deadline'],
+      examDate: adminModel['examDate'],
+      startTime: adminModel['startTime'],
+      endTime: adminModel['endTime'],
       doctor: adminModel['doctor'] ?? 'Unknown',
       version: adminModel['version'] ?? 1,
     );

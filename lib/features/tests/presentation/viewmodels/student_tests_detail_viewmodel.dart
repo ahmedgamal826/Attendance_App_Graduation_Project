@@ -19,6 +19,9 @@ class TestsStudentDetailViewModel extends ChangeNotifier {
   bool _allQuestionsAnswered = false;
   bool _isUploading = false;
   double _uploadProgress = 0.0;
+  String? _examDate;
+  String? _startTime;
+  String? _endTime;
 
   // Getters
   List<TestsStudentQuestion> get questions => _questions;
@@ -30,6 +33,9 @@ class TestsStudentDetailViewModel extends ChangeNotifier {
   bool get allQuestionsAnswered => _allQuestionsAnswered;
   bool get isUploading => _isUploading;
   double get uploadProgress => _uploadProgress;
+  String? get examDate => _examDate;
+  String? get startTime => _startTime;
+  String? get endTime => _endTime;
   TestsStudentQuestion? get currentQuestion =>
       _questions.isNotEmpty && _currentQuestionIndex < _questions.length
           ? _questions[_currentQuestionIndex]
@@ -65,6 +71,11 @@ class TestsStudentDetailViewModel extends ChangeNotifier {
       }
 
       final testData = testDoc.data()!;
+
+      // Load exam date and time information
+      _examDate = testData['examDate'];
+      _startTime = testData['startTime'];
+      _endTime = testData['endTime'];
 
       final List<dynamic> rawQuestions = testData['questions'] ?? [];
 
@@ -243,8 +254,8 @@ class TestsStudentDetailViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> submitAssignment() async {
-    if (!_allQuestionsAnswered) {
+  Future<bool> submitAssignment({bool forceSubmit = false}) async {
+    if (!_allQuestionsAnswered && !forceSubmit) {
       _errorMessage = 'Please answer all questions before submitting';
       notifyListeners();
       return false;
@@ -298,6 +309,7 @@ class TestsStudentDetailViewModel extends ChangeNotifier {
         final question = _questions[i];
         String questionId = question.id;
         bool? isCorrect = false;
+        int score = 0; // Initialize score for each question
 
         Map<String, dynamic> questionData = {
           'questionId': questionId,
@@ -348,37 +360,39 @@ class TestsStudentDetailViewModel extends ChangeNotifier {
 
           questionData['correctAnswerText'] = correctAnswerText;
 
-          String selectedAnswerText = '';
-          if (question.selectedOption != null &&
-              question.selectedOption! >= 0 &&
-              question.selectedOption! < question.options.length) {
-            selectedAnswerText = question.options[question.selectedOption!];
-            print("Selected option index: ${question.selectedOption}");
-            print("Selected option text: '$selectedAnswerText'");
-            print("Available options: ${question.options}");
-          }
-
-          questionData['selectedAnswerText'] = selectedAnswerText;
-          questionData['selectedOptionIndex'] = question.selectedOption;
-
-          if (correctIndex >= 0) {
-            questionData['correctOptionIndex'] = correctIndex;
-          }
-
-          if (correctAnswerText.isNotEmpty && selectedAnswerText.isNotEmpty) {
-            isCorrect = selectedAnswerText.trim() == correctAnswerText.trim();
-            print(
-                "Text comparison: '$selectedAnswerText' == '$correctAnswerText' => $isCorrect");
+          // Check if the question was answered
+          if (question.selectedOption == null) {
+            // For unanswered questions
+            questionData['selectedAnswerText'] = '';
+            questionData['selectedOptionIndex'] = null;
+            questionData['isCorrect'] = false;
+            questionData['score'] = 0; // Score is 0 for unanswered questions
           } else {
-            isCorrect = false;
-            print("Empty answer texts, marking as incorrect");
+            // For answered questions
+            String selectedAnswerText = '';
+            if (question.selectedOption! >= 0 &&
+                question.selectedOption! < question.options.length) {
+              selectedAnswerText = question.options[question.selectedOption!];
+            }
+
+            questionData['selectedAnswerText'] = selectedAnswerText;
+            questionData['selectedOptionIndex'] = question.selectedOption;
+
+            if (correctIndex >= 0) {
+              questionData['correctOptionIndex'] = correctIndex;
+            }
+
+            if (correctAnswerText.isNotEmpty && selectedAnswerText.isNotEmpty) {
+              isCorrect = selectedAnswerText.trim() == correctAnswerText.trim();
+            } else {
+              isCorrect = false;
+            }
+
+            score = isCorrect ? 1 : 0;
+
+            questionData['isCorrect'] = isCorrect;
+            questionData['score'] = score;
           }
-
-          int score = isCorrect ? 1 : 0;
-          totalScore += score;
-
-          questionData['isCorrect'] = isCorrect;
-          questionData['score'] = score;
         } else if (question.type == 'true_false' ||
             question.type == 'TrueFalse') {
           questionData['options'] = ["True", "False"];
@@ -413,19 +427,28 @@ class TestsStudentDetailViewModel extends ChangeNotifier {
 
           questionData['correctAnswerText'] = correctAnswerText;
 
-          String selectedAnswerText =
-              question.selectedOption == 0 ? "True" : "False";
-          questionData['selectedAnswerText'] = selectedAnswerText;
-          questionData['selectedOptionIndex'] = question.selectedOption;
+          // Check if the question was answered
+          if (question.selectedOption == null) {
+            // For unanswered questions
+            questionData['selectedAnswerText'] = '';
+            questionData['selectedOptionIndex'] = null;
+            questionData['isCorrect'] = false;
+            questionData['score'] = 0; // Score is 0 for unanswered questions
+          } else {
+            // For answered questions
+            String selectedAnswerText =
+                question.selectedOption == 0 ? "True" : "False";
+            questionData['selectedAnswerText'] = selectedAnswerText;
+            questionData['selectedOptionIndex'] = question.selectedOption;
 
-          isCorrect = selectedAnswerText == correctAnswerText &&
-              !correctAnswerText.isEmpty;
+            isCorrect = selectedAnswerText == correctAnswerText &&
+                correctAnswerText.isNotEmpty;
 
-          int score = isCorrect ? 1 : 0;
-          totalScore += score;
+            score = isCorrect ? 1 : 0;
 
-          questionData['isCorrect'] = isCorrect;
-          questionData['score'] = score;
+            questionData['isCorrect'] = isCorrect;
+            questionData['score'] = score;
+          }
         } else if (question.type == 'Upload File') {
           questionData['fileUrl'] = question.uploadedFileUrl;
           questionData['fileName'] = question.uploadedFileName;
@@ -434,6 +457,11 @@ class TestsStudentDetailViewModel extends ChangeNotifier {
         }
 
         questionAnswers.add(questionData);
+
+        // Add the score to totalScore after processing each question
+        if (questionData.containsKey('score')) {
+          totalScore += questionData['score'] as int;
+        }
       }
 
       submissionData['questions'] = questionAnswers;
