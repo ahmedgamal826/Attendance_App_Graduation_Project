@@ -1,5 +1,5 @@
 import 'package:attendance_app/app_home.dart';
-import 'package:attendance_app/features/home/presentation/views/assistant_home_view.dart';
+import 'package:attendance_app/features/assistant/presentation/views/assistant_home_view.dart';
 import 'package:attendance_app/features/on%20boarding/presentation/views/onboarding_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

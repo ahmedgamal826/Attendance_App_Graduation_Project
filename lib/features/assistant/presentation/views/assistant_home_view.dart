@@ -1,6 +1,6 @@
 import 'package:attendance_app/features/auth/presentations/views/add_user_screen.dart';
 import 'package:attendance_app/features/home/presentation/manager/provider/dark_mode_provider.dart';
-import 'package:attendance_app/features/home/presentation/views/widgets/assistant_drawer.dart';
+import 'package:attendance_app/features/assistant/presentation/views/widgets/assistant_drawer.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:attendance_app/features/home/presentation/views/user_details_view.dart';

@@ -202,7 +202,7 @@ import 'package:attendance_app/features/auth/presentations/views/widget/auth_fun
 import 'package:attendance_app/features/auth/presentations/views/widget/custom_button.dart';
 import 'package:attendance_app/features/auth/presentations/views/widget/custom_text_filed.dart';
 import 'package:attendance_app/features/home/presentation/manager/provider/dark_mode_provider.dart';
-import 'package:attendance_app/features/home/presentation/views/assistant_home_view.dart';
+import 'package:attendance_app/features/assistant/presentation/views/assistant_home_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
