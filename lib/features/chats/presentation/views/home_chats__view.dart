@@ -6,11 +6,24 @@ import 'package:attendance_app/features/chats/presentation/views/new_chat_view.d
 import 'package:attendance_app/features/chats/presentation/views/user_profile_view.dart';
 import 'package:attendance_app/features/chats/presentation/views/widgets/long_press_chat_item.dart';
 import 'package:attendance_app/features/chats/presentation/views/widgets/search_chats_text_field.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class HomeChatsView extends StatelessWidget {
   const HomeChatsView({super.key});
+
+  Future<Map<String, dynamic>?> _fetchCurrentUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+    return userDoc.data();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,22 +45,65 @@ class HomeChatsView extends StatelessWidget {
           actions: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.person,
-                    color: AppColors.primaryColor,
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const UserProfileView(),
+              child: FutureBuilder<Map<String, dynamic>?>(
+                future: _fetchCurrentUserData(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryColor,
                       ),
                     );
-                  },
-                ),
+                  }
+                  if (snapshot.hasError ||
+                      !snapshot.hasData ||
+                      snapshot.data == null) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const UserProfileView(),
+                          ),
+                        );
+                      },
+                      child: const CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.person,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    );
+                  }
+
+                  final userData = snapshot.data!;
+                  final imageUrl =
+                      userData['image'] ?? ''; // حقل الصورة في Firestore
+
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const UserProfileView(),
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                      backgroundImage:
+                          imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                      backgroundColor: Colors.white,
+                      child: imageUrl.isEmpty
+                          ? const Icon(
+                              Icons.person,
+                              color: AppColors.primaryColor,
+                            )
+                          : null,
+                    ),
+                  );
+                },
               ),
             ),
           ],

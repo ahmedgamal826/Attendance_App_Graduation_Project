@@ -15,6 +15,39 @@ class ChatItem extends StatelessWidget {
   });
 
   // تنسيق الوقت بشكل مشابه للواتساب (مثلاً: 10:30 AM)
+  // String _formatTo12Hour(DateTime? timestamp) {
+  //   if (timestamp == null) return '';
+
+  //   try {
+  //     final hour = timestamp.hour % 12 == 0 ? 12 : timestamp.hour % 12;
+  //     final minute = timestamp.minute.toString().padLeft(2, '0');
+  //     final period = timestamp.hour >= 12 ? 'PM' : 'AM';
+  //     return '${hour.toString().padLeft(2, '0')}:$minute $period';
+  //   } catch (e) {
+  //     print('Error formatting timestamp in ChatItem: $timestamp, error: $e');
+  //     return '';
+  //   }
+  // }
+
+  // تنسيق الوقت/التاريخ بناءً على الشرط (Yesterday أو التاريخ الكامل)
+  String _formatChatDateTime(DateTime? timestamp) {
+    if (timestamp == null) return '';
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final messageDay = DateTime(timestamp.year, timestamp.month, timestamp.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    if (messageDay == today) {
+      return _formatTo12Hour(timestamp); // عرض الوقت إذا كان اليوم
+    } else if (messageDay == yesterday) {
+      return 'Yesterday';
+    } else {
+      return '${messageDay.day}/${messageDay.month}/${messageDay.year}';
+    }
+  }
+
+  // تنسيق الوقت بشكل 12 ساعة
   String _formatTo12Hour(DateTime? timestamp) {
     if (timestamp == null) return '';
 
@@ -29,7 +62,6 @@ class ChatItem extends StatelessWidget {
     }
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     print('Last message for chat ${chat.name}: ${chat.lastMessage}');
@@ -150,7 +182,8 @@ class ChatItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            _formatTo12Hour(chat.timestamp),
+            // _formatTo12Hour(chat.timestamp),
+            _formatChatDateTime(chat.timestamp), // استخدام الدالة الجديدة
             style: const TextStyle(color: Colors.grey, fontSize: 12),
           ),
           if (unreadCount > 0) ...[
