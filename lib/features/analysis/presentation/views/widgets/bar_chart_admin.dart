@@ -1,10 +1,7 @@
-// Path: lib/features/analysis/presentation/widgets/bar_chart_admin.dart
-
+import 'package:attendance_app/features/analysis/models/student_score_admin.dart';
 import 'package:flutter/material.dart';
 
-import '../../../models/student_score_admin.dart';
-
-class tBarChartAdmin extends StatelessWidget {
+class tBarChartAdmin extends StatefulWidget {
   final List<StudentScoreAdmin> studentScores;
   final double animationValue;
   final bool isSmallScreen;
@@ -19,13 +16,23 @@ class tBarChartAdmin extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<tBarChartAdmin> createState() => _tBarChartAdminState();
+}
+
+class _tBarChartAdminState extends State<tBarChartAdmin> {
+  int? selectedIndex; // To track which bar was tapped
+  Offset? tapPosition;
+  String? selectedStudentName; // To track selected student name
+
+  @override
   Widget build(BuildContext context) {
-    // Adjust padding and font size based on screen size
-    final containerPadding = isSmallScreen ? 8.0 : 16.0;
-    final titleFontSize = isSmallScreen ? 14.0 : 18.0;
-    final axisFontSize = isSmallScreen ? 12.0 : 15.0;
-    final labelFontSize = isSmallScreen ? 10.0 : 12.0;
-    final barWidth = isSmallScreen ? 16.0 : (isMediumScreen ? 20.0 : 28.0);
+    final containerPadding = widget.isSmallScreen ? 8.0 : 16.0;
+    final titleFontSize = widget.isSmallScreen ? 14.0 : 18.0;
+    final axisFontSize = widget.isSmallScreen ? 12.0 : 15.0;
+    final labelFontSize = widget.isSmallScreen ? 8.0 : 10.0;
+    final barWidth = widget.isSmallScreen
+        ? 20.0
+        : (widget.isMediumScreen ? 25.0 : 32.0); // Increased bar width
 
     return Container(
       padding: EdgeInsets.all(containerPadding),
@@ -51,85 +58,174 @@ class tBarChartAdmin extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: isSmallScreen ? 10 : 20),
+          SizedBox(height: widget.isSmallScreen ? 10 : 20),
           Expanded(
-            child: Container(
-              padding: EdgeInsets.only(
-                top: containerPadding / 2,
-                right: containerPadding / 2,
-                bottom: containerPadding / 2,
-              ),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Y-Axis
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('100',
-                              style: TextStyle(
-                                  fontSize: axisFontSize,
-                                  color: Colors.grey[600])),
-                          Text('80',
-                              style: TextStyle(
-                                  fontSize: axisFontSize,
-                                  color: Colors.grey[600])),
-                          Text('60',
-                              style: TextStyle(
-                                  fontSize: axisFontSize,
-                                  color: Colors.grey[600])),
-                          Text('40',
-                              style: TextStyle(
-                                  fontSize: axisFontSize,
-                                  color: Colors.grey[600])),
-                          Text('20',
-                              style: TextStyle(
-                                  fontSize: axisFontSize,
-                                  color: Colors.grey[600])),
-                          Text('0',
-                              style: TextStyle(
-                                  fontSize: axisFontSize,
-                                  color: Colors.grey[600])),
-                        ],
-                      ),
-                      const SizedBox(width: 5),
-                      // Chart Area
-                      Expanded(
-                        child: Column(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final availableHeight =
+                    constraints.maxHeight - 40; // Reserve space for labels
+                return Stack(
+                  // Use Stack to position the label container
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Y-Axis
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Expanded(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: studentScores.map((score) {
-                                  return _buildBarWithLabel(
-                                    score.score * animationValue,
-                                    score.name,
-                                    Colors.red,
-                                    constraints.maxHeight - 20,
-                                    barWidth,
-                                    labelFontSize,
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            // X-Axis Line
-                            Container(
-                              height: 2,
-                              color: Colors.blue,
-                            ),
+                            Text('100',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
+                            Text('90',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
+                            Text('80',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
+                            Text('70',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
+                            Text('60',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
+                            Text('50',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
+                            Text('40',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
+                            Text('30',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
+                            Text('20',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
+                            Text('10',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
+                            Text('0',
+                                style: TextStyle(
+                                    fontSize: axisFontSize,
+                                    color: Colors.grey[600])),
                           ],
                         ),
+                        const SizedBox(width: 5),
+                        // Chart Area
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTapDown: (details) {
+                                    final barWidthTotal = barWidth * 5 +
+                                        20; // Total width of bars + spacing
+                                    final tapX = details.localPosition.dx;
+                                    final index = (tapX / barWidthTotal * 5)
+                                        .floor()
+                                        .clamp(0, 4);
+                                    setState(() {
+                                      tapPosition = details.localPosition;
+                                      selectedIndex = index;
+                                      selectedStudentName =
+                                          widget.studentScores.length > index
+                                              ? widget.studentScores[index].name
+                                              : 'Unknown';
+                                    });
+                                  },
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: List.generate(5, (index) {
+                                      final score =
+                                          widget.studentScores.length > index
+                                              ? widget.studentScores[index]
+                                              : StudentScoreAdmin(
+                                                  'Stu${index + 1}', 0);
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            selectedIndex = index;
+                                            selectedStudentName = score.name;
+                                          });
+                                        },
+                                        child: _buildBarWithLabel(
+                                          score.score * widget.animationValue,
+                                          'Stu${index + 1}',
+                                          Colors.red,
+                                          availableHeight,
+                                          barWidth,
+                                          labelFontSize,
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              // X-Axis Line
+                              Container(
+                                height: 2,
+                                color: Colors.blue,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Display selected student name next to the bar
+                    if (selectedIndex != null && tapPosition != null)
+                      Positioned(
+                        left: (barWidth * selectedIndex! +
+                            (selectedIndex! * 5) +
+                            barWidth +
+                            10), // Position to the right of bar
+                        top:
+                            tapPosition!.dy - 40, // Adjust vertically to center
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12.0, vertical: 6.0),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.blue[200]!, Colors.blue[400]!],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            'Student ${selectedIndex! + 1}\n${selectedStudentName ?? 'Unknown'}',
+                            style: TextStyle(
+                              fontSize: labelFontSize + 2,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ),
-                    ],
-                  );
-                },
-              ),
+                  ],
+                );
+              },
             ),
           ),
         ],
@@ -152,15 +248,12 @@ class tBarChartAdmin extends StatelessWidget {
       children: [
         Container(
           width: barWidth,
-          height: barHeight,
+          height: barHeight > maxHeight ? maxHeight : barHeight,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                color,
-                color.withOpacity(0.7),
-              ],
+              colors: [color, color.withOpacity(0.7)],
             ),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(4),

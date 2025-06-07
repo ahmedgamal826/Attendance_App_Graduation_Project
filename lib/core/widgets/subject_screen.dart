@@ -103,8 +103,12 @@ class _SubjectScreenState extends State<SubjectScreen>
     switch (buttonName) {
       case 'Analysis':
         destination = role == 'Admin'
-            ? const AnalysisViewAdmin()
-            : const AnalysisViewStudent();
+            ? AnalysisViewAdmin(
+                courseId: widget.courseId,
+              )
+            : AnalysisViewStudent(
+                courseId: widget.courseId,
+              );
         break;
       case 'Attendance':
         destination = role == 'Admin'
